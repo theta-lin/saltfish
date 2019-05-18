@@ -64,13 +64,13 @@ public:
 		}
 	}
 
-	T& operator()(size_t row, size_t col)
+	T& operator()(size_t col, size_t row)
 	{
 		assert(array);
 		return array[row * width + col];
 	}
 
-	const T& operator()(size_t row, size_t col) const
+	const T& operator()(size_t col, size_t row) const
 	{
 		assert(array);
 		return array[row * width + col];

@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include "color.hpp"
 #include "memory.hpp"
+#include "line.hpp"
 
 const size_t g_screenWidth{640};
 const size_t g_screenHeight{480};
@@ -38,11 +39,12 @@ int main(int argc, char *argv[])
 		SDL_Quit();
 		return 1;
 	}
+	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
 	FlatArray<Uint32> pixels{g_screenWidth, g_screenHeight};
 	void *pixelsPtr{nullptr};
 	int pitch;
-	pixels(300, 200) = Color{255, 0, 0, 255};
+	Line l1{{50, 50}, {50, 200}};
 
 	bool quit{false};
 	SDL_Event event;
@@ -58,10 +60,13 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		l1.draw({255, 255, 255, 255}, pixels);
+
 		SDL_LockTexture(texture, 0, &pixelsPtr, &pitch);
 		SDL_UpdateTexture(texture, 0, pixels.data(), g_screenWidth * sizeof(Uint32));
 		SDL_UnlockTexture(texture);
 
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, 0, 0);
 		SDL_RenderPresent(renderer);
