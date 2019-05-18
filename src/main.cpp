@@ -1,11 +1,10 @@
 #include <iostream>
-#include <algorithm>
-#include <vector>
-#include <cstring>
 #include "SDL.h"
+#include "color.hpp"
+#include "memory.hpp"
 
-const int g_screenWidth{640};
-const int g_screenHeight{480};
+const size_t g_screenWidth{640};
+const size_t g_screenHeight{480};
 
 int main(int argc, char *argv[])
 {
@@ -40,9 +39,10 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	std::vector<Uint32> pixels(g_screenWidth * g_screenHeight);
+	FlatArray<Uint32> pixels{g_screenWidth, g_screenHeight};
 	void *pixelsPtr{nullptr};
 	int pitch;
+	pixels(300, 200) = Color{255, 0, 0, 255};
 
 	bool quit{false};
 	SDL_Event event;
