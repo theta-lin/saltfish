@@ -1,47 +1,27 @@
 #include <iostream>
 #include "SDL.h"
-#include "color.hpp"
-#include "memory.hpp"
-#include "line.hpp"
-
-const size_t g_screenWidth{640};
-const size_t g_screenHeight{480};
+#include "video.hpp"
+#include "cross.hpp"
 
 int main(int argc, char *argv[])
 {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	checkCompatibility();
+
+	Video video{"saltfish", 640, 480};
+	if (!video.init())
 	{
-		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
 		return 1;
 	}
 
-	SDL_Window *window{SDL_CreateWindow("saltfish", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, g_screenWidth, g_screenHeight, 0)};
-	if (window == nullptr)
-	{
-		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
-	}
-
-	SDL_Renderer *renderer{SDL_CreateRenderer(window, -1, 0)};
-	if (renderer == nullptr)
-	{
-		std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 1;
-	}
-
-	SDL_Texture *texture{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, g_screenWidth, g_screenHeight)};
+	SDL_Texture *texture{SDL_CreateTexture(video.getRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, video.getWidth(), video.getHeight())};
 	if(texture == nullptr)
 	{
 		std::cerr << "SDL_CreateTexture Error: " << SDL_GetError() << std::endl;
-		SDL_DestroyTexture(texture);
-		SDL_DestroyWindow(window);
-		SDL_Quit();
 		return 1;
 	}
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-	FlatArray<Uint32> pixels{g_screenWidth, g_screenHeight};
+	FlatArray<Uint32> pixels{video.getWidth(), video.getHeight()};
 	void *pixelsPtr{nullptr};
 	int pitch;
 	Line l1{{50, 50}, {50, 200}};
@@ -63,19 +43,16 @@ int main(int argc, char *argv[])
 		l1.draw({255, 255, 255, 255}, pixels);
 
 		SDL_LockTexture(texture, 0, &pixelsPtr, &pitch);
-		SDL_UpdateTexture(texture, 0, pixels.data(), g_screenWidth * sizeof(Uint32));
+		SDL_UpdateTexture(texture, 0, pixels.data(), video.getWidth() * sizeof(Uint32));
 		SDL_UnlockTexture(texture);
 
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, 0, 0);
-		SDL_RenderPresent(renderer);
+		SDL_SetRenderDrawColor(video.getRenderer(), 0, 0, 0, 255);
+		SDL_RenderClear(video.getRenderer());
+		SDL_RenderCopy(video.getRenderer(), texture, 0, 0);
+		SDL_RenderPresent(video.getRenderer());
 
 	}
 
 	SDL_DestroyTexture(texture);
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
 	return 0;
 }
