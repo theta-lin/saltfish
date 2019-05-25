@@ -1,6 +1,8 @@
 #include <iostream>
+#include <cstring>
 #include "SDL.h"
 #include "video.hpp"
+#include "surface.hpp"
 #include "cross.hpp"
 
 int main(int argc, char *argv[])
@@ -21,7 +23,8 @@ int main(int argc, char *argv[])
 	}
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-	FlatArray<Uint32> pixels{video.getWidth(), video.getHeight()};
+	Surface surface{video.getWidth(), video.getHeight()};
+	memset(surface.getPixels(), 0, surface.getWidth() * surface.getHeight() * surface.getFormat()->BytesPerPixel);
 	void *pixelsPtr{nullptr};
 	int pitch;
 	Line l1{{50, 50}, {50, 200}};
@@ -40,7 +43,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		l1.draw({255, 255, 255, 255}, pixels);
+		l1.draw({255, 255, 255, 255}, surface.getPtr());
 
 		SDL_LockTexture(texture, 0, &pixelsPtr, &pitch);
 		SDL_UpdateTexture(texture, 0, pixels.data(), video.getWidth() * sizeof(Uint32));
@@ -56,3 +59,4 @@ int main(int argc, char *argv[])
 	SDL_DestroyTexture(texture);
 	return 0;
 }
+

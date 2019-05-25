@@ -148,4 +148,5 @@ using Vec2d = Vec<2, double>;
 using Vec3d = Vec<3, double>;
 using Vec4d = Vec<4, double>;
 
-#endif
+#endif // ifndef VEC_HPP
+

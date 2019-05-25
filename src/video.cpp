@@ -12,7 +12,7 @@ bool Video::setTitle(const std::string &title)
 	return true;
 }
 
-bool Video::setVideoMode(uint32_t width, uint32_t height)
+bool Video::setVideoMode(int width, int height)
 {
 	if (inited)
 	{

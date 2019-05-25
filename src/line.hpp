@@ -23,5 +23,5 @@ public:
 	void draw(const Color &color, FlatArray<Uint32> &canvas);
 };
 
-#endif
+#endif // ifndef LINE_HPP
 

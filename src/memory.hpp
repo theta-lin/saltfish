@@ -77,5 +77,5 @@ public:
 	}
 };
 
-#endif
+#endif // ifndef MEMORY_HPP
 

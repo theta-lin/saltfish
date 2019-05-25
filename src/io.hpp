@@ -46,5 +46,5 @@ char* deserial(double &value, char *buffer);
 //    bool write(const World &world);
 //};
 
-#endif
+#endif // ifndef IO_HPP
 

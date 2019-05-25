@@ -13,8 +13,8 @@ class Video
 private:
 	bool inited;
 	std::string title;
-	uint32_t width;
-	uint32_t height;
+	int width;
+	int height;
 
 	SDL_Window *window;
 	SDL_Renderer *renderer;
@@ -24,7 +24,7 @@ public:
 	{
 	}
 
-	Video(const std::string &title, uint32_t width, uint32_t height) : inited{false}, title{title}, width{width}, height{height}, window{nullptr}, renderer{nullptr}
+	Video(const std::string &title, int width, int height) : inited{false}, title{title}, width{width}, height{height}, window{nullptr}, renderer{nullptr}
 	{
 	}
 
@@ -34,15 +34,15 @@ public:
 	}
 
 	bool isInited() { return inited; }
-	uint32_t getWidth() { return width; }
-	uint32_t getHeight() { return height; }
+	int getWidth() { return width; }
+	int getHeight() { return height; }
 	SDL_Renderer* getRenderer() { return renderer; }
 
 	bool setTitle(const std::string &title);
-	bool setVideoMode(uint32_t width, uint32_t height);
+	bool setVideoMode(int width, int height);
 	bool init();
 	void cleanup();
 };
 
-#endif
+#endif // ifndef VIDEO_HPP
 

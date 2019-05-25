@@ -28,5 +28,5 @@ public:
 	}
 };
 
-#endif
+#endif // ifndef COLOR_HPP
 
