@@ -1,6 +1,6 @@
 #include "line.hpp"
 
-void Line::draw(const Color &color, FlatArray<Uint32> &canvas)
+void Line::draw(const SDL_Color &color, Surface &surface)
 {
 	double x0{p0[0]}, x1{p1[0]};
 	double y0{p0[1]}, y1{p1[1]};
@@ -17,15 +17,15 @@ void Line::draw(const Color &color, FlatArray<Uint32> &canvas)
 	int signX{dX > 0 ? 1 : -1}, signY{dY > 0 ? 1: -1};
 	double dError{std::abs(dY / dX)};
 	double error{0.0};
-	for (int x{static_cast<int>(x0)}, y{static_cast<int>(y0)}; x <= static_cast<int>(x1); x += signX)
+	for (int x{std::lround(x0)}, y{std::lround(y0)}; x <= std::lround(x1); x += signX)
 	{
 		if (steep)
 		{
-			canvas(y, x) = color;
+			surface(y, x) = color;
 		}
 		else
 		{
-			canvas(x, y) = color;
+			surface(x, y) = color;
 		}
 
 		error += dError;

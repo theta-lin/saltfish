@@ -3,8 +3,7 @@
 
 #include <cmath>
 #include "vec.hpp"
-#include "color.hpp"
-#include "memory.hpp"
+#include "surface.hpp"
 
 class Line
 {
@@ -20,7 +19,7 @@ public:
 	{
 	}
 
-	void draw(const Color &color, FlatArray<Uint32> &canvas);
+	void draw(const SDL_Color &color, Surface &surface);
 };
 
 #endif // ifndef LINE_HPP

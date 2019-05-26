@@ -4,9 +4,6 @@
 #include <iostream>
 #include <string>
 #include "SDL.h"
-#include "color.hpp"
-#include "memory.hpp"
-#include "line.hpp"
 
 class Video
 {

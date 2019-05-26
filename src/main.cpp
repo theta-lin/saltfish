@@ -3,6 +3,7 @@
 #include "SDL.h"
 #include "video.hpp"
 #include "surface.hpp"
+#include "line.hpp"
 #include "cross.hpp"
 
 int main(int argc, char *argv[])
@@ -23,37 +24,43 @@ int main(int argc, char *argv[])
 	}
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-	Surface surface{video.getWidth(), video.getHeight()};
-	memset(surface.getPixels(), 0, surface.getWidth() * surface.getHeight() * surface.getFormat()->BytesPerPixel);
-	void *pixelsPtr{nullptr};
-	int pitch;
-	Line l1{{50, 50}, {50, 200}};
-
-	bool quit{false};
-	SDL_Event event;
-	while(!quit)
+	try
 	{
-		while (SDL_PollEvent(&event))
+		Surface surface{video.getWidth(), video.getHeight()};
+		memset(surface.getPixels(), 0, surface.getWidth() * surface.getHeight() * surface.getFormat()->BytesPerPixel);
+		void *pixelsPtr{nullptr};
+		int pitch;
+		Line l1{{50, 50}, {50, 200}};
+
+		bool quit{false};
+		SDL_Event event;
+		while(!quit)
 		{
-			switch (event.type)
+			while (SDL_PollEvent(&event))
 			{
-				case SDL_QUIT:
-					quit = true;
-					break;
+				switch (event.type)
+				{
+					case SDL_QUIT:
+						quit = true;
+						break;
+				}
 			}
+
+			l1.draw({255, 255, 255, 255}, surface);
+
+			SDL_LockTexture(texture, 0, &pixelsPtr, &pitch);
+			SDL_UpdateTexture(texture, 0, surface.getPixels(), video.getWidth() * sizeof(Uint32));
+			SDL_UnlockTexture(texture);
+
+			SDL_SetRenderDrawColor(video.getRenderer(), 0, 0, 0, 255);
+			SDL_RenderClear(video.getRenderer());
+			SDL_RenderCopy(video.getRenderer(), texture, 0, 0);
+			SDL_RenderPresent(video.getRenderer());
 		}
-
-		l1.draw({255, 255, 255, 255}, surface.getPtr());
-
-		SDL_LockTexture(texture, 0, &pixelsPtr, &pitch);
-		SDL_UpdateTexture(texture, 0, pixels.data(), video.getWidth() * sizeof(Uint32));
-		SDL_UnlockTexture(texture);
-
-		SDL_SetRenderDrawColor(video.getRenderer(), 0, 0, 0, 255);
-		SDL_RenderClear(video.getRenderer());
-		SDL_RenderCopy(video.getRenderer(), texture, 0, 0);
-		SDL_RenderPresent(video.getRenderer());
-
+	}
+	catch(const std::runtime_error &exception)
+	{
+		std::cerr << "Caught std::runtime_error: " << exception.what() << std::endl;
 	}
 
 	SDL_DestroyTexture(texture);

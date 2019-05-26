@@ -1,5 +1,72 @@
 #include "surface.hpp"
 
+PixelView::PixelView(Uint8 *const pixel, const SDL_PixelFormat *const format) : pixel{pixel}, format{format}
+{
+}
+
+PixelView::operator Uint32() const
+{
+	switch (format->BytesPerPixel)
+	{
+	case 1:
+		return *pixel;
+	case 2:
+		return *reinterpret_cast<Uint16*>(pixel);
+	case 3:
+		{
+			Uint32 result{  (static_cast<Uint32>(pixel[0]))
+						  + (static_cast<Uint32>(pixel[1]) << 8)
+						  + (static_cast<Uint32>(pixel[2]) << 16)};
+			return result;
+		}
+	case 4:
+		return *reinterpret_cast<Uint32*>(pixel);
+	default:
+		throw std::runtime_error("PixelView::operator Uint32() failed: pixel byte size error");
+	}
+}
+
+PixelView::operator SDL_Color() const
+{
+	SDL_Color color;
+	SDL_GetRGBA(static_cast<Uint32>(*this), format, &color.r, &color.g, &color.b, &color.a);
+	return color;
+}
+
+PixelView& PixelView::operator=(const SDL_Color &color)
+{
+	Uint32 value{SDL_MapRGBA(format, color.r, color.g, color.b, color.a)};
+	switch (format->BytesPerPixel)
+	{
+	case 1:
+		*pixel = static_cast<Uint8>(value);
+		break;
+	case 2:
+		*reinterpret_cast<Uint16 *>(pixel) = static_cast<Uint16>(value);
+		break;
+	case 3:
+		pixel[0] = static_cast<Uint8>(value);
+		pixel[1] = static_cast<Uint8>(value << 8);
+		pixel[2] = static_cast<Uint8>(value << 16);
+		break;
+	case 4:
+		*reinterpret_cast<Uint32 *>(pixel) = value;
+		break;
+	default:
+		throw std::runtime_error("PixelView::operator= failed: pixel byte size error");
+	}
+
+	return *this;
+}
+
+PixelView& PixelView::operator=(const PixelView &pixelView)
+{
+	SDL_Color color{static_cast<SDL_Color>(pixelView)};
+	*this = color;
+	return *this;
+}
+
+
 Surface::Surface(SDL_Surface *surface) : surface{surface}
 {
 }
@@ -10,9 +77,14 @@ Surface::Surface(Surface &&surface) : surface{surface.getPtr()}
 		surface.free();
 }
 
-Surface::Surface(int width, int height, int depth, Uint32 format, void *pixels)
+Surface::Surface(int width, int height, int depth, Uint32 format) : surface{nullptr}
 {
-	create(width, height, depth, format, pixels);
+	create(width, height, depth, format);
+}
+
+Surface::Surface(void *pixels, int width, int height, int depth, int pitch, Uint32 format) : surface{nullptr}
+{
+	create(pixels, width, height, depth, pitch, format);
 }
 
 Surface::~Surface()
@@ -21,16 +93,26 @@ Surface::~Surface()
 		free();
 }
 
-void Surface::create(int width, int height, int depth, Uint32 format, void *pixels)
+void Surface::create(int width, int height, int depth, Uint32 format)
 {
 	if (surface)
 		throw std::runtime_error("Surface::create() failed: surface already exist");
 
-	if (pixels)
-		surface = SDL_CreateRGBSurfaceWithFormatFrom(pixels, width, height, depth, ((depth + 7) / 8) * width, format);
-	else
-		surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, depth, format);
+	surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, depth, format);
+	if (!surface)
+	{
+		std::string message{"Surface::create() failed: "};
+		message.append(SDL_GetError());
+		throw std::runtime_error(message);
+	}
+}
 
+void Surface::create(void *pixels, int width, int height, int depth, int pitch, Uint32 format)
+{
+	if (surface)
+		throw std::runtime_error("Surface::create() failed: surface already exist");
+
+	surface = SDL_CreateRGBSurfaceWithFormatFrom(pixels, width, height, depth, pitch, format);
 	if (!surface)
 	{
 		std::string message{"Surface::create() failed: "};
@@ -138,6 +220,19 @@ void Surface::blitScaled(Surface &dst, const SDL_Rect *srcrect, SDL_Rect *dstrec
 	}
 }
 
+void Surface::fillRect(const SDL_Rect *rect, const SDL_Color &color)
+{
+	if (!surface)
+		throw std::runtime_error("Surface::fillRect() failed: surface is nullptr");
+
+	if (SDL_FillRect(surface, rect, SDL_MapRGBA(getFormat(), color.r, color.g, color.b, color.a)) < 0)
+	{
+		std::string message("Surface::fillRect() failed: ");
+		message.append(SDL_GetError());
+		throw std::runtime_error(message);
+	}
+}
+
 void Surface::lock()
 {
 	if (!surface)
@@ -182,5 +277,25 @@ Surface& Surface::operator=(Surface &&surface)
 	}
 
 	return *this;
+}
+
+Surface::operator bool()
+{
+	if (surface)
+		return true;
+	else
+		return false;
+}
+
+PixelView Surface::operator[](int index)
+{
+	return {static_cast<Uint8*>(getPixels()) + index * getFormat()->BytesPerPixel,
+			getFormat()};
+}
+
+PixelView Surface::operator()(int row, int col)
+{
+	return {static_cast<Uint8*>(getPixels()) + row * getPitch() + col * getFormat()->BytesPerPixel,
+			getFormat()};
 }
 
