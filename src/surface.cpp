@@ -24,6 +24,8 @@ PixelView::operator Uint32() const
 	default:
 		throw std::runtime_error("PixelView::operator Uint32() failed: pixel byte size error");
 	}
+
+	return result;
 }
 
 PixelView::operator SDL_Color() const
