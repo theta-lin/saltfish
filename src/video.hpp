@@ -3,42 +3,26 @@
 
 #include <iostream>
 #include <string>
+#include <stdexcept>
 #include "SDL.h"
+#include "surface.hpp"
 
 class Video
 {
 private:
-	bool inited;
-	std::string title;
-	int width;
-	int height;
-
 	SDL_Window *window;
-	SDL_Renderer *renderer;
+	Surface surface;
 
 public:
-	Video() : inited{false}, width{0}, height{0}, window{nullptr}, renderer{nullptr}
-	{
-	}
+	Video();
+	Video(const std::string &title, int width, int height);
+	~Video();
 
-	Video(const std::string &title, int width, int height) : inited{false}, title{title}, width{width}, height{height}, window{nullptr}, renderer{nullptr}
-	{
-	}
-
-	~Video()
-	{
-		cleanup();
-	}
-
-	bool isInited() { return inited; }
-	int getWidth() { return width; }
-	int getHeight() { return height; }
-	SDL_Renderer* getRenderer() { return renderer; }
-
-	bool setTitle(const std::string &title);
-	bool setVideoMode(int width, int height);
-	bool init();
+	void init(const std::string &title, int width, int height);
 	void cleanup();
+	Surface& getSurface();
+	void update();
+	operator bool();
 };
 
 #endif // ifndef VIDEO_HPP

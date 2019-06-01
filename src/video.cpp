@@ -1,68 +1,82 @@
 #include "video.hpp"
 
-bool Video::setTitle(const std::string &title)
+Video::Video() : window{nullptr}
 {
-	if (inited)
-	{
-		std::cerr << "Failed to set title, already started video" << std::endl;
-		return false;
-	}
-
-	this->title = title;
-	return true;
 }
 
-bool Video::setVideoMode(int width, int height)
+Video::Video(const std::string &title, int width, int height) : window{nullptr}
 {
-	if (inited)
-	{
-		std::cerr << "Failed to set video mode, already started video" << std::endl;
-		return false;
-	}
-
-	this->width = width;
-	this->height = height;
-	return true;
+	init(title, width, height);
 }
 
-bool Video::init()
+Video::~Video()
 {
-	cleanup();
+	if (window)
+		cleanup();
+}
 
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+void Video::init(const std::string &title, int width, int height)
+{
+	if (window)
+		throw std::runtime_error("Video::init() failed: window already exist");
+
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-		return false;
+		std::string message{"SDL_Init() Error: "};
+		message.append(SDL_GetError());
+		throw std::runtime_error(message);
 	}
 
 	window = SDL_CreateWindow(title.c_str() , SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
-	if (window == nullptr)
+	if (!window)
 	{
-		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
-		return false;
+		std::string message{"SDL_CreateWindow() Error: "};
+		message.append(SDL_GetError());
+		throw std::runtime_error(message);
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, 0);
-	if (renderer == nullptr)
+	surface = SDL_GetWindowSurface(window);
+	if (!surface)
 	{
-		std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return false;
+		std::string message{"SDL_GetWindowSurface() Error: "};
+		message.append(SDL_GetError());
+		throw std::runtime_error(message);
 	}
-
-	inited = true;
-	return true;
+	surface.setManaged(false);
 }
 
 void Video::cleanup()
 {
-	if (inited)
+	if (!window)
+		throw std::runtime_error("Video::cleanup() failed: window is nullptr");
+	SDL_DestroyWindow(window);
+	SDL_Quit();
+}
+
+Surface& Video::getSurface()
+{
+	if (!window)
+		throw std::runtime_error("Video::getSurface() failed: window is nullptr");
+	return surface;
+}
+
+void Video::update()
+{
+	if (!window)
+		throw std::runtime_error("Video::update() failed: window is nullptr");
+	if (SDL_UpdateWindowSurface(window) < 0)
 	{
-		SDL_DestroyRenderer(renderer);
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		inited = false;
+		std::string message{"Video::update() failed: "};
+		message.append(SDL_GetError());
+		throw std::runtime_error(message);
 	}
+}
+
+Video::operator bool()
+{
+	if (window)
+		return true;
+	else
+		return false;
 }
 
