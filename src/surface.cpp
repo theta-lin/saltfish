@@ -6,21 +6,21 @@ PixelView::PixelView(Uint8 *const pixel, const SDL_PixelFormat *const format) : 
 
 PixelView::operator Uint32() const
 {
+	Uint32 result{0};
 	switch (format->BytesPerPixel)
 	{
-	case 1:
-		return *pixel;
-	case 2:
-		return *reinterpret_cast<Uint16*>(pixel);
-	case 3:
-		{
-			Uint32 result{  (static_cast<Uint32>(pixel[0]))
-						  + (static_cast<Uint32>(pixel[1]) << 8)
-						  + (static_cast<Uint32>(pixel[2]) << 16)};
-			return result;
-		}
 	case 4:
-		return *reinterpret_cast<Uint32*>(pixel);
+		result += static_cast<Uint32>(pixel[3]) << 24;
+		[[fallthrough]];
+	case 3:
+		result += static_cast<Uint32>(pixel[2]) << 16;
+		[[fallthrough]];
+	case 2:
+		result += static_cast<Uint32>(pixel[1]) << 8;
+		[[fallthrough]];
+	case 1:
+		result += static_cast<Uint32>(pixel[0]) ;
+		break;
 	default:
 		throw std::runtime_error("PixelView::operator Uint32() failed: pixel byte size error");
 	}
@@ -38,19 +38,17 @@ PixelView& PixelView::operator=(const SDL_Color &color)
 	Uint32 value{SDL_MapRGBA(format, color.r, color.g, color.b, color.a)};
 	switch (format->BytesPerPixel)
 	{
-	case 1:
-		*pixel = static_cast<Uint8>(value);
-		break;
-	case 2:
-		*reinterpret_cast<Uint16 *>(pixel) = static_cast<Uint16>(value);
-		break;
-	case 3:
-		pixel[0] = static_cast<Uint8>(value);
-		pixel[1] = static_cast<Uint8>(value << 8);
-		pixel[2] = static_cast<Uint8>(value << 16);
-		break;
 	case 4:
-		*reinterpret_cast<Uint32 *>(pixel) = value;
+		pixel[3] = static_cast<Uint8>(value << 24);
+		[[fallthrough]];
+	case 3:
+		pixel[2] = static_cast<Uint8>(value << 16);
+		[[fallthrough]];
+	case 2:
+		pixel[1] = static_cast<Uint8>(value << 8);
+		[[fallthrough]];
+	case 1:
+		pixel[0] = static_cast<Uint8>(value);
 		break;
 	default:
 		throw std::runtime_error("PixelView::operator= failed: pixel byte size error");
@@ -67,29 +65,29 @@ PixelView& PixelView::operator=(const PixelView &pixelView)
 }
 
 
-Surface::Surface(SDL_Surface *surface) : surface{surface}
+Surface::Surface(SDL_Surface *surface) : surface{surface}, managed{true}
 {
 }
 
-Surface::Surface(Surface &&surface) : surface{surface.getPtr()}
+Surface::Surface(Surface &&surface) : surface{surface.getPtr()}, managed{surface.getManaged()}
 {
 	if (surface.getPtr())
 		surface.free();
 }
 
-Surface::Surface(int width, int height, int depth, Uint32 format) : surface{nullptr}
+Surface::Surface(int width, int height, int depth, Uint32 format) : surface{nullptr}, managed{true}
 {
 	create(width, height, depth, format);
 }
 
-Surface::Surface(void *pixels, int width, int height, int depth, int pitch, Uint32 format) : surface{nullptr}
+Surface::Surface(void *pixels, int width, int height, int depth, int pitch, Uint32 format) : surface{nullptr}, managed{true}
 {
 	create(pixels, width, height, depth, pitch, format);
 }
 
 Surface::~Surface()
 {
-	if (surface)
+	if (surface && managed)
 		free();
 }
 
@@ -176,6 +174,11 @@ bool Surface::getMustLock()
 	if (!surface)
 		throw std::runtime_error("Surface::getMustLock() failed: surface is nullptr");
 	return SDL_MUSTLOCK(surface);
+}
+
+bool Surface::getManaged()
+{
+	return managed;
 }
 
 Surface Surface::convert(const SDL_PixelFormat *fmt)
@@ -266,6 +269,11 @@ void Surface::setRLE(bool flag)
 	}
 }
 
+void Surface::setManaged(bool flag)
+{
+	managed = flag;
+}
+
 Surface& Surface::operator=(Surface &&surface)
 {
 	if (this != &surface)
@@ -273,6 +281,7 @@ Surface& Surface::operator=(Surface &&surface)
 		if (this->surface)
 			free();
 		this->surface = surface.surface;
+		this->managed = surface.managed;
 		surface.surface = nullptr;
 	}
 

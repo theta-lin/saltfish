@@ -26,6 +26,7 @@ class Surface
 {
 private:
 	SDL_Surface *surface;
+	bool managed;
 
 public:
 	Surface(SDL_Surface *surface = nullptr);
@@ -46,6 +47,7 @@ public:
 	void* getPixels();
 	SDL_PixelFormat* getFormat();
 	bool getMustLock();
+	bool getManaged();
 
 	Surface convert(const SDL_PixelFormat *fmt);
 	void blitSurface(Surface &dst, const SDL_Rect *srcrect, SDL_Rect *dstrect);
@@ -55,6 +57,7 @@ public:
 	void lock();
 	void unlock();
 	void setRLE(bool flag);
+	void setManaged(bool flag);
 
 	Surface& operator=(Surface &&surface);
 	operator bool();
