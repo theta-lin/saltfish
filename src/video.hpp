@@ -5,17 +5,19 @@
 #include <string>
 #include <stdexcept>
 #include "SDL.h"
+#include "log.hpp"
 #include "surface.hpp"
 
 class Video
 {
 private:
+	Log &logger;
 	SDL_Window *window;
 	Surface surface;
 
 public:
-	Video();
-	Video(const std::string &title, int width, int height);
+	Video(Log &logger);
+	Video(Log &logger, const std::string &title, int width, int height);
 	~Video();
 
 	void init(const std::string &title, int width, int height);

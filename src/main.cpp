@@ -2,6 +2,7 @@
 #include <cstring>
 #include "SDL.h"
 #include "SDL_main.h"
+#include "log.hpp"
 #include "video.hpp"
 #include "surface.hpp"
 #include "line.hpp"
@@ -9,12 +10,23 @@
 
 int main(int argc, char *argv[])
 {
+	Log logger{LogLevel::debug};
+	logger.bind(std::cout);
+
+	logger.lock();
+	logger.GET(LogLevel::info) << "Started program" << std::endl;
+	logger.unlock();
+
+	checkCompatibility();
+	logger.lock();
+	logger.GET(LogLevel::debug) << "Compatiblity check passed" << std::endl;
+	logger.unlock();
+
 	try
 	{
-		checkCompatibility();
-		Video video{"saltfish", 640, 480};
-
+		Video video{logger, "saltfish", 640, 480};
 		video.getSurface().fillRect(nullptr, SDL_Color{0, 0, 0, 255});
+
 		Line l1{{50, 50}, {50, 200}};
 
 		bool quit{false};
@@ -37,7 +49,9 @@ int main(int argc, char *argv[])
 	}
 	catch(const std::runtime_error &exception)
 	{
-		std::cerr << "Caught std::runtime_error: " << exception.what() << std::endl;
+		logger.lock();
+		logger.GET(LogLevel::error) << "Caught std::runtime_error: " << exception.what() << std::endl;
+		logger.unlock();
 	}
 
 	return 0;

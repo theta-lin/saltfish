@@ -1,10 +1,10 @@
 #include "video.hpp"
 
-Video::Video() : window{nullptr}
+Video::Video(Log &logger) : logger{logger}, window{nullptr}
 {
 }
 
-Video::Video(const std::string &title, int width, int height) : window{nullptr}
+Video::Video(Log &logger, const std::string &title, int width, int height) : logger{logger}, window{nullptr}
 {
 	init(title, width, height);
 }
@@ -19,6 +19,10 @@ void Video::init(const std::string &title, int width, int height)
 {
 	if (window)
 		throw std::runtime_error("Video::init() failed: window already exist");
+
+	logger.lock();
+	logger.GET(LogLevel::info) << "Initialize video mode: " << width << 'x' << height << std::endl;
+	logger.unlock();
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -47,6 +51,10 @@ void Video::init(const std::string &title, int width, int height)
 
 void Video::cleanup()
 {
+	logger.lock();
+	logger.GET(LogLevel::info) << "Cleanup video" << std::endl;
+	logger.unlock();
+
 	if (!window)
 		throw std::runtime_error("Video::cleanup() failed: window is nullptr");
 	SDL_DestroyWindow(window);
