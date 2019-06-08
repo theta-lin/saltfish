@@ -3,6 +3,7 @@
 #include "SDL.h"
 #include "SDL_main.h"
 #include "log.hpp"
+#include "config.hpp"
 #include "video.hpp"
 #include "surface.hpp"
 #include "line.hpp"
@@ -24,7 +25,15 @@ int main(int argc, char *argv[])
 
 	try
 	{
-		Video video{logger, "saltfish", 640, 480};
+		Config config;
+		config.add("window.width", ConfigType::INT);
+		config.add("window.height", ConfigType::INT);
+		config.loadFromFile("saltfish.conf");
+		int windowWidth, windowHeight;
+		config.get("window.width", windowWidth);
+		config.get("window.height", windowHeight);
+
+		Video video{logger, "saltfish", windowWidth, windowHeight};
 		video.getSurface().fillRect(nullptr, SDL_Color{0, 0, 0, 255});
 
 		Line l1{{50, 50}, {50, 200}};

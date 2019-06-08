@@ -3,10 +3,11 @@
 
 #include <cstdint>
 #include <cstring>
-#include <fstream>
+#include <cctype>
 #include <string>
-#include <vector>
-//#include "world.hpp"
+#include <string_view>
+#include <list>
+#include <array>
 
 char* serial(uint32_t value, char* buffer);
 char* serial(int32_t value, char* buffer);
@@ -20,31 +21,7 @@ char* deserial(uint64_t &value, char *buffer);
 char* deserial(int64_t &value, char *buffer);
 char* deserial(double &value, char *buffer);
 
-//class DataBuffer
-//{
-//private:
-//    std::vector<char> buffer;
-
-//public:
-//    DataBuffer()
-//    {
-//    }
-
-//    DataBuffer(const std::string &path)
-//    {
-//        load(path);
-//    }
-
-//    DataBuffer(const World &world)
-//    {
-//        load(World);
-//    }
-
-//    bool load(const std::string &path);
-//    bool load(const World &world);
-//    bool write(const std::string &path);
-//    bool write(const World &world);
-//};
+std::list<std::string> tokenize(std::string_view data);
 
 #endif // ifndef IO_HPP
 

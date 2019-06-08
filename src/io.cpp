@@ -105,3 +105,84 @@ char* deserial(double &value, char *buffer)
 	return buffer + 8;
 }
 
+
+std::list<std::string> tokenize(std::string_view data)
+{
+	static const std::array<char, 1> operators{'='};
+
+	std::list<std::string> out;
+	bool quoted{false};
+	bool escape{false};
+	bool next{true};
+	for (char current : data)
+	{
+		if (quoted)
+		{
+			if (!escape && current == '\"')
+			{
+				quoted = false;
+				escape = false;
+				next = true;
+			}
+			else if (!escape && current == '\\')
+			{
+				escape = true;
+			}
+			else if (next)
+			{
+				out.push_back({current});
+				next = false;
+			}
+			else
+			{
+				out.back().push_back(current);
+				escape = false;
+			}
+		}
+		else
+		{
+			if (std::isspace(current))
+			{
+				next = true;
+			}
+			else
+			{
+				bool isOperator{false};
+				for (char element : operators)
+				{
+					if (current == element)
+					{
+						isOperator = true;
+						break;
+					}
+				}
+
+				if (isOperator)
+				{
+					out.push_back({current});
+					next = true;
+				}
+				else
+				{
+					if (current == '\"')
+					{
+						quoted = true;
+						next = true;
+					}
+					else if (next)
+					{
+						out.push_back({current});
+						next = false;
+					}
+					else
+					{
+						out.back().push_back(current);
+					}
+				}
+			}
+		}
+	}
+
+	return out;
+}
+
