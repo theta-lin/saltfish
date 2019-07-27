@@ -17,7 +17,7 @@ void Line::draw(const SDL_Color &color, Surface &surface)
 	int signX{dX > 0 ? 1 : -1}, signY{dY > 0 ? 1: -1};
 	double dError{std::abs(dY / dX)};
 	double error{0.0};
-	for (int x{std::lround(x0)}, y{std::lround(y0)}; x <= std::lround(x1); x += signX)
+	for (int x{static_cast<int>(std::lround(x0))}, y{static_cast<int>(std::lround(y0))}; x <= std::lround(x1); x += signX)
 	{
 		if (steep)
 		{
