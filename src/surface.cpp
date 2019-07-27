@@ -53,7 +53,7 @@ PixelView& PixelView::operator=(const SDL_Color &color)
 		pixel[0] = static_cast<Uint8>(value);
 		break;
 	default:
-		throw std::runtime_error("PixelView::operator= failed: pixel byte size error");
+		throw std::runtime_error("PixelView::operator=() failed: pixel byte size error");
 	}
 
 	return *this;
