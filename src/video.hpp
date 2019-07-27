@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include "SDL.h"
 #include "log.hpp"
+#include "config.hpp"
 #include "surface.hpp"
 
 class Video
@@ -17,10 +18,10 @@ private:
 
 public:
 	Video(Log &logger);
-	Video(Log &logger, const std::string &title, int width, int height);
+	Video(Log &logger, const std::string &title, const Config &config);
 	~Video();
 
-	void init(const std::string &title, int width, int height);
+	void init(const std::string &title, const Config &config);
 	void cleanup();
 	Surface& getSurface();
 	void update();

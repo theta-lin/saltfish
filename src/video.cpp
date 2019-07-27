@@ -4,9 +4,9 @@ Video::Video(Log &logger) : logger{logger}, window{nullptr}
 {
 }
 
-Video::Video(Log &logger, const std::string &title, int width, int height) : logger{logger}, window{nullptr}
+Video::Video(Log &logger, const std::string &title, const Config &config) : logger{logger}, window{nullptr}
 {
-	init(title, width, height);
+	init(title, config);
 }
 
 Video::~Video()
@@ -15,10 +15,14 @@ Video::~Video()
 		cleanup();
 }
 
-void Video::init(const std::string &title, int width, int height)
+void Video::init(const std::string &title, const Config &config)
 {
 	if (window)
 		throw std::runtime_error("Video::init() failed: window already exist");
+
+	int width{640}, height{480};
+	config.get("window.width", width);
+	config.get("window.height", height);
 
 	logger.lock();
 	logger.GET(LogLevel::info) << "Initialize video mode: " << width << 'x' << height << std::endl;

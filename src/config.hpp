@@ -83,9 +83,20 @@ public:
 	}
 
 	template <typename T>
-	bool get(const std::string &key, T &target)
+	bool get(const std::string &key, T &target) const
 	{
-		std::stringstream valueStream{db[key]};
+		std::stringstream valueStream;
+		try
+		{
+			valueStream = std::stringstream{db.at(key)};
+		}
+		catch (std::out_of_range &exception)
+		{
+			logger.GET(LogLevel::warning)
+				<< "Config::get(): key \"" << key << "\" does not exist" << std::endl;
+			return false;
+		}
+
 		valueStream >> target;
 		if (valueStream.fail())
 		{
@@ -94,10 +105,8 @@ public:
 				<< "\" as \"" << typeid(T).name() << "\"" << std::endl;
 			return false;
 		}
-		else
-		{
-			return true;
-		}
+
+		return true;
 	}
 };
 
