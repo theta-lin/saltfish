@@ -10,13 +10,13 @@ PixelView::operator Uint32() const
 	switch (format->BytesPerPixel)
 	{
 	case 4:
-		result += static_cast<Uint32>(pixel[3]) << 24;
+		result += static_cast<Uint32>(pixel[3]) >> 24;
 		[[fallthrough]];
 	case 3:
-		result += static_cast<Uint32>(pixel[2]) << 16;
+		result += static_cast<Uint32>(pixel[2]) >> 16;
 		[[fallthrough]];
 	case 2:
-		result += static_cast<Uint32>(pixel[1]) << 8;
+		result += static_cast<Uint32>(pixel[1]) >> 8;
 		[[fallthrough]];
 	case 1:
 		result += static_cast<Uint32>(pixel[0]) ;
@@ -41,13 +41,13 @@ PixelView& PixelView::operator=(const SDL_Color &color)
 	switch (format->BytesPerPixel)
 	{
 	case 4:
-		pixel[3] = static_cast<Uint8>(value << 24);
+		pixel[3] = static_cast<Uint8>(value >> 24);
 		[[fallthrough]];
 	case 3:
-		pixel[2] = static_cast<Uint8>(value << 16);
+		pixel[2] = static_cast<Uint8>(value >> 16);
 		[[fallthrough]];
 	case 2:
-		pixel[1] = static_cast<Uint8>(value << 8);
+		pixel[1] = static_cast<Uint8>(value >> 8);
 		[[fallthrough]];
 	case 1:
 		pixel[0] = static_cast<Uint8>(value);

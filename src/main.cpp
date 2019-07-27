@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			l1.draw({255, 255, 255, 255}, video.getSurface());
+			l1.draw({255, 255, 0, 0}, video.getSurface());
 			video.update();
 		}
 	}
