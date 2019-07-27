@@ -20,9 +20,9 @@ ComposedBuffer::int_type ComposedBuffer::overflow(int_type ch)
 	return ch;
 }
 
-std::string stringOfLogLevel(LogLevel level)
+std::string_view stringOfLogLevel(LogLevel level)
 {
-	static const std::string lookup[4] = {"ERROR", "WARNING", "INFO", "DEBUG"};
+	static const std::array<std::string, 4> lookup{"ERROR", "WARNING", "INFO", "DEBUG"};
 	return lookup[static_cast<int>(level)];
 }
 
@@ -55,14 +55,15 @@ void Log::bind(std::ostream &observer)
 	buffer.add(observer.rdbuf());
 }
 
-std::ostream& Log::get(LogLevel level, const std::string &functionName)
+std::ostream& Log::get(LogLevel level, std::string_view fileName, int lineNumber)
 {
 	if (level <= this->level)
 	{
 		auto now{std::chrono::system_clock::now()};
 		auto in_time_t{std::chrono::system_clock::to_time_t(now)};
 		out << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M:%S ")
-			<< '[' << stringOfLogLevel(level) << "] " << functionName << ": ";
+			<< '[' << stringOfLogLevel(level) << "] "
+			<< fileName << ":" << lineNumber << ": ";
 		return out;
 	}
 	else

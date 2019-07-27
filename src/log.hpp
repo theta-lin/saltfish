@@ -6,6 +6,8 @@
 #include <vector>
 #include <functional>
 #include <string>
+#include <string_view>
+#include <array>
 #include <chrono>
 #include <iomanip>
 #include <mutex>
@@ -37,7 +39,7 @@ enum class LogLevel
 	debug = 3
 };
 
-std::string stringOfLogLevel(LogLevel level);
+std::string_view stringOfLogLevel(LogLevel level);
 
 class Log
 {
@@ -61,7 +63,7 @@ public:
 	 * Return a std::ostream to directly log to
 	 * RECOMMAND USING THE MACRO WRAPPER
 	 */
-	std::ostream& get(LogLevel level, const std::string &functionName);
+	std::ostream& get(LogLevel level, std::string_view fileName, int lineNumber);
 };
 
 /*
@@ -69,7 +71,7 @@ public:
  * Inserts current function name
  */
 #define GET(LEVEL)\
-		get(LEVEL, __func__)
+		get(LEVEL, __FILE__, __LINE__)
 
 #endif // ifndef LOG_HPP
 

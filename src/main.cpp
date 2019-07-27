@@ -1,5 +1,8 @@
-#include <iostream>
 #include <cstring>
+#include <iostream>
+#include <stdexcept>
+#include <filesystem>
+#include <cassert>
 #include "SDL.h"
 #include "SDL_main.h"
 #include "log.hpp"
@@ -14,21 +17,20 @@ int main(int argc, char *argv[])
 	Log logger{LogLevel::debug};
 	logger.bind(std::cout);
 
-	logger.lock();
 	logger.GET(LogLevel::info) << "Started program" << std::endl;
-	logger.unlock();
-
 	checkCompatibility();
-	logger.lock();
 	logger.GET(LogLevel::debug) << "Compatiblity check passed" << std::endl;
-	logger.unlock();
+
+	assert(argc != 0);
+	namespace fs = std::filesystem;
+	fs::path exeDir{fs::current_path() / fs::path{argv[0]}.parent_path()};
 
 	try
 	{
-		Config config;
-		config.add("window.width", ConfigType::INT);
-		config.add("window.height", ConfigType::INT);
-		config.loadFromFile("saltfish.conf");
+		Config config{logger};
+		if (!config.loadFromFile(exeDir / "saltfish.conf"))
+			throw std::runtime_error{"FATAL: cannot open config file"};
+
 		int windowWidth, windowHeight;
 		config.get("window.width", windowWidth);
 		config.get("window.height", windowHeight);
@@ -60,6 +62,12 @@ int main(int argc, char *argv[])
 	{
 		logger.lock();
 		logger.GET(LogLevel::error) << "Caught std::runtime_error: " << exception.what() << std::endl;
+		logger.unlock();
+	}
+	catch(...)
+	{
+		logger.lock();
+		logger.GET(LogLevel::error) << "Caught Unknown Exception" << std::endl;
 		logger.unlock();
 	}
 
