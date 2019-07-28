@@ -6,11 +6,11 @@
 #include <vector>
 #include <functional>
 #include <string>
-#include <string_view>
 #include <array>
 #include <chrono>
 #include <iomanip>
 #include <mutex>
+#include <filesystem>
 
 class NullBuffer : public std::streambuf
 {
@@ -63,7 +63,7 @@ public:
 	 * Return a std::ostream to directly log to
 	 * RECOMMAND USING THE MACRO WRAPPER
 	 */
-	std::ostream& get(LogLevel level, std::string_view fileName, int lineNumber);
+	std::ostream& get(LogLevel level, std::string fileName, int lineNumber);
 };
 
 /*
@@ -71,7 +71,7 @@ public:
  * Inserts current function name
  */
 #define GET(LEVEL)\
-		get(LEVEL, __FILE__, __LINE__)
+		get(LEVEL, std::filesystem::path{__FILE__}.filename(), __LINE__)
 
 #endif // ifndef LOG_HPP
 

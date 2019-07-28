@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
@@ -19,15 +20,44 @@ int main(int argc, char *argv[])
 	static_assert(std::numeric_limits<double>::has_infinity, "Require infinity for double");
 	static_assert(std::numeric_limits<double>::has_quiet_NaN, "Require quit NaN for double");
 
+	Log logger{LogLevel::debug};
+	logger.bind(std::cout);
+
+	logger.lock();
+	logger.GET(LogLevel::info) << "Started program" << std::endl;
+
+	SDL_version compiled;
+	SDL_version linked;
+	SDL_VERSION(&compiled);
+	SDL_GetVersion(&linked);
+	logger.GET(LogLevel::info) << "SDL Compiled Version: "
+		<< static_cast<int>(compiled.major) << '.'
+		<< static_cast<int>(compiled.minor) << '.'
+		<< static_cast<int>(compiled.patch) << std::endl;
+	logger.GET(LogLevel::info) << "SDL Linked Version: "
+		<< static_cast<int>(linked.major) << '.'
+		<< static_cast<int>(linked.minor) << '.'
+		<< static_cast<int>(linked.patch) << std::endl;
+	logger.unlock();
+
+	assert(argc != 0);
+	namespace fs = std::filesystem;
+	fs::path exeDir{fs::current_path() / fs::path{argv[0]}.parent_path()};
+
 	try
 	{
-		Log logger{LogLevel::debug};
-		logger.bind(std::cout);
-		logger.GET(LogLevel::info) << "Started program" << std::endl;
+		if (SDL_Init(SDL_INIT_VIDEO) < 0)
+		{
+			std::string message{"SDL_Init() Error: "};
+			message.append(SDL_GetError());
+			throw std::runtime_error{message};
+		}
+		logger.lock();
+		logger.GET(LogLevel::info) << "Initialized SDL" << std::endl;
+		logger.unlock();
 
-		assert(argc != 0);
-		namespace fs = std::filesystem;
-		fs::path exeDir{fs::current_path() / fs::path{argv[0]}.parent_path()};
+		if (std::atexit(SDL_Quit) != 0)
+			throw std::runtime_error{"Registration of SDL_Quit() failed"};
 
 		Config config{logger};
 		if (!config.loadFromFile(exeDir / "saltfish.conf"))

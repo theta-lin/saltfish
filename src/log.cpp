@@ -55,7 +55,7 @@ void Log::bind(std::ostream &observer)
 	buffer.add(observer.rdbuf());
 }
 
-std::ostream& Log::get(LogLevel level, std::string_view fileName, int lineNumber)
+std::ostream& Log::get(LogLevel level, std::string fileName, int lineNumber)
 {
 	if (level <= this->level)
 	{
