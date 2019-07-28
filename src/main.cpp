@@ -1,9 +1,9 @@
 #include <cstdlib>
 #include <cstring>
+#include <cassert>
 #include <iostream>
 #include <stdexcept>
 #include <filesystem>
-#include <cassert>
 #include <limits>
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -11,14 +11,15 @@
 #include "config.hpp"
 #include "video.hpp"
 #include "surface.hpp"
+#include "font.hpp"
 #include "line.hpp"
 
 int main(int argc, char *argv[])
 {
-	static_assert(sizeof(double) == 8, "Require size of double to be 8");
-	static_assert(std::numeric_limits<double>::is_iec559, "Require IEEE 559 for double");
-	static_assert(std::numeric_limits<double>::has_infinity, "Require infinity for double");
-	static_assert(std::numeric_limits<double>::has_quiet_NaN, "Require quit NaN for double");
+	static_assert(sizeof(double) == 8, "Requires size of double to be 8");
+	static_assert(std::numeric_limits<double>::is_iec559, "Requires IEEE 559 for double");
+	static_assert(std::numeric_limits<double>::has_infinity, "Requires infinity for double");
+	static_assert(std::numeric_limits<double>::has_quiet_NaN, "Requires quiet NaN for double");
 
 	Log logger{LogLevel::debug};
 	logger.bind(std::cout);
@@ -89,6 +90,9 @@ int main(int argc, char *argv[])
 			throw std::runtime_error{"FATAL: cannot open config file"};
 
 		Video video{logger, "saltfish", config};
+		Font DejaVu{exeDir / "DejaVuSans.ttf", 100};
+		std::string lolText{"Lol"};
+		Surface lol{DejaVu.renderBlended(lolText, {0, 255, 0, 255})};
 		Line l1{{50, 50}, {50, 200}};
 
 		bool quit{false};
@@ -105,8 +109,9 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			video.getSurface().fillRect(nullptr, SDL_Color{0, 0, 0, 255});
-			l1.draw({255, 255, 0, 0}, video.getSurface());
+			video.getSurface().fillRect(nullptr, {0, 0, 0, 255});
+			lol.blitSurface(video.getSurface(), nullptr, nullptr);
+			l1.draw({255, 255, 0, 255}, video.getSurface());
 			video.update();
 		}
 	}
