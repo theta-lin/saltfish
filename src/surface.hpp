@@ -1,9 +1,9 @@
-#ifndef SURFACE
-#define SURFACE
+#ifndef SURFACE_HPP
+#define SURFACE_HPP
 
 #include <string>
 #include <stdexcept>
-#include "SDL.h"
+#include <SDL.h>
 
 class PixelView
 {
@@ -65,5 +65,5 @@ public:
 	PixelView operator()(int row, int col);
 };
 
-#endif // ifndef surface
+#endif // ifndef SURFACE_HPP
 

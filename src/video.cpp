@@ -32,7 +32,7 @@ void Video::init(const std::string &title, const Config &config)
 	if (!window)
 	{
 		std::string message{"SDL_CreateWindow() Error: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 
@@ -40,7 +40,7 @@ void Video::init(const std::string &title, const Config &config)
 	if (!surface)
 	{
 		std::string message{"SDL_GetWindowSurface() Error: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 	surface.setManaged(false);
@@ -71,7 +71,7 @@ void Video::update()
 	if (SDL_UpdateWindowSurface(window) < 0)
 	{
 		std::string message{"Video::update() failed: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 }

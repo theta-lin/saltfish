@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
-#include "SDL.h"
+#include <SDL.h>
 #include "log.hpp"
 #include "config.hpp"
 #include "surface.hpp"

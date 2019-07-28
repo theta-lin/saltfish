@@ -102,7 +102,7 @@ void Surface::create(int width, int height, int depth, Uint32 format)
 	if (!surface)
 	{
 		std::string message{"Surface::create() failed: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 }
@@ -116,7 +116,7 @@ void Surface::create(void *pixels, int width, int height, int depth, int pitch, 
 	if (!surface)
 	{
 		std::string message{"Surface::create() failed: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 }
@@ -190,7 +190,7 @@ Surface Surface::convert(const SDL_PixelFormat *fmt)
 	if (!temp)
 	{
 		std::string message{"Surface::convert() failed: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 
@@ -205,7 +205,7 @@ void Surface::blitSurface(Surface &dst, const SDL_Rect *srcrect, SDL_Rect *dstre
 	if (SDL_BlitSurface(surface, srcrect, dst.surface, dstrect) < 0)
 	{
 		std::string message{"Surface::blitSurface() failed: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 }
@@ -218,7 +218,7 @@ void Surface::blitScaled(Surface &dst, const SDL_Rect *srcrect, SDL_Rect *dstrec
 	if (SDL_BlitScaled(surface, srcrect, dst.surface, dstrect) < 0)
 	{
 		std::string message{"Surface::blitScaled() failed: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 }
@@ -231,7 +231,7 @@ void Surface::fillRect(const SDL_Rect *rect, const SDL_Color &color)
 	if (SDL_FillRect(surface, rect, SDL_MapRGBA(getFormat(), color.r, color.g, color.b, color.a)) < 0)
 	{
 		std::string message{"Surface::fillRect() failed: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 }
@@ -244,7 +244,7 @@ void Surface::lock()
 	if (SDL_LockSurface(surface) < 0)
 	{
 		std::string message{"Surface::lock() failed: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 }
@@ -264,7 +264,7 @@ void Surface::setRLE(bool flag)
 	if (SDL_SetSurfaceRLE(surface, flag) < 0)
 	{
 		std::string message{"Surface::setRLE() failed: "};
-		message.append(SDL_GetError());
+		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 }
