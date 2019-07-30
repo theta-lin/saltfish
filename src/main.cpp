@@ -13,6 +13,7 @@
 #include "surface.hpp"
 #include "font.hpp"
 #include "line.hpp"
+#include "program.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -90,28 +91,15 @@ int main(int argc, char *argv[])
 			throw std::runtime_error{"FATAL: cannot open config file"};
 
 		Video video{logger, "saltfish", config};
-		Font DejaVu{exeDir / "DejaVuSans.ttf", 100};
-		std::string lolText{"Lol"};
-		Surface lol{DejaVu.renderBlended(lolText, {0, 255, 0, 255})};
-		Line l1{{50, 50}, {50, 200}};
 
-		bool quit{false};
+		Program program{logger, exeDir, video.getSurface()};
+
 		SDL_Event event;
-		while(!quit)
+		while(!program.isExited())
 		{
 			while (SDL_PollEvent(&event))
-			{
-				switch (event.type)
-				{
-					case SDL_QUIT:
-						quit = true;
-						break;
-				}
-			}
-
-			video.getSurface().fillRect(nullptr, {0, 0, 0, 255});
-			lol.blitSurface(video.getSurface(), nullptr, nullptr);
-			l1.draw({255, 255, 0, 255}, video.getSurface());
+				program.handleInput(event);
+			program.update();
 			video.update();
 		}
 	}

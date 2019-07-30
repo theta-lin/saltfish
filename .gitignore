@@ -1,8 +1,13 @@
 /*
-!.gitignore
-!.ycm_extra_conf.py
-!CMakeLists.txt
-!cmake/
-!src/
-/src/*.swp
+!/.gitignore
+!/.ycm_extra_conf.py
+!/CMakeLists.txt
+!/cmake/
+!/src/
+
+!/bin/
+/bin/*
+!bin/font/
+
+*.swp
 

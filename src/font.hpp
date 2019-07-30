@@ -40,5 +40,5 @@ public:
 	std::string fontFaceStyleName();
 };
 
-#endif
+#endif // ifndef FONT_HPP
 
