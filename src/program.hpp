@@ -17,9 +17,9 @@ class ProgramState
 {
 protected:
 	Program &program;
+	ProgramState(Program &program);
 
 public:
-	ProgramState(Program &program);
 	virtual ~ProgramState();
 	virtual std::unique_ptr<ProgramState> handleInput(const SDL_Event &event) = 0;
 	virtual void update() = 0;
@@ -28,9 +28,9 @@ public:
 class MenuState : public ProgramState
 {
 private:
-	Surface line1;
-	Surface line2;
-	Surface line3;
+	sw::Surface line1;
+	sw::Surface line2;
+	sw::Surface line3;
 
 public:
 	MenuState(Program &program);
@@ -41,7 +41,7 @@ public:
 class GameState : public ProgramState
 {
 private:
-	Surface line1;
+	sw::Surface line1;
 
 public:
 	GameState(Program &program);
@@ -52,9 +52,9 @@ public:
 class PauseState : public ProgramState
 {
 private:
-	Surface line1;
-	Surface line2;
-	Surface line3;
+	sw::Surface line1;
+	sw::Surface line2;
+	sw::Surface line3;
 
 public:
 	PauseState(Program &program);
@@ -65,7 +65,7 @@ public:
 class EditorState : public ProgramState
 {
 private:
-	Surface line1;
+	sw::Surface line1;
 
 public:
 	EditorState(Program &program);
@@ -86,17 +86,17 @@ class Program
 private:
 	Log &logger;
 	const fs::path &exeDir;
-	Surface &surface;
+	sw::Surface &surface;
 	std::unique_ptr<ProgramState> state;
 
 public:
-	Program(Log &logger, const fs::path &exeDir, Surface &surface);
+	Program(Log &logger, const fs::path &exeDir, sw::Surface &surface);
 	void handleInput(const SDL_Event &event);
 	void update();
 	bool isExited();
 
 	Log& getLog();
-	Surface& getSurface();
+	sw::Surface& getSurface();
 	const fs::path& getExeDir();
 };
 

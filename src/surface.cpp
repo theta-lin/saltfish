@@ -1,71 +1,7 @@
 #include "surface.hpp"
 
-PixelView::PixelView(Uint8 *const pixel, const SDL_PixelFormat *const format) : pixel{pixel}, format{format}
+namespace sw
 {
-}
-
-PixelView::operator Uint32() const
-{
-	Uint32 result{0};
-	switch (format->BytesPerPixel)
-	{
-	case 4:
-		result += static_cast<Uint32>(pixel[3]) >> 24;
-		[[fallthrough]];
-	case 3:
-		result += static_cast<Uint32>(pixel[2]) >> 16;
-		[[fallthrough]];
-	case 2:
-		result += static_cast<Uint32>(pixel[1]) >> 8;
-		[[fallthrough]];
-	case 1:
-		result += static_cast<Uint32>(pixel[0]) ;
-		break;
-	default:
-		throw std::runtime_error{"PixelView::operator Uint32() failed: pixel byte size error"};
-	}
-
-	return result;
-}
-
-PixelView::operator SDL_Color() const
-{
-	SDL_Color color;
-	SDL_GetRGBA(static_cast<Uint32>(*this), format, &color.r, &color.g, &color.b, &color.a);
-	return color;
-}
-
-PixelView& PixelView::operator=(const SDL_Color &color)
-{
-	Uint32 value{SDL_MapRGBA(format, color.r, color.g, color.b, color.a)};
-	switch (format->BytesPerPixel)
-	{
-	case 4:
-		pixel[3] = static_cast<Uint8>(value >> 24);
-		[[fallthrough]];
-	case 3:
-		pixel[2] = static_cast<Uint8>(value >> 16);
-		[[fallthrough]];
-	case 2:
-		pixel[1] = static_cast<Uint8>(value >> 8);
-		[[fallthrough]];
-	case 1:
-		pixel[0] = static_cast<Uint8>(value);
-		break;
-	default:
-		throw std::runtime_error{"PixelView::operator=() failed: pixel byte size error"};
-	}
-
-	return *this;
-}
-
-PixelView& PixelView::operator=(const PixelView &pixelView)
-{
-	SDL_Color color{static_cast<SDL_Color>(pixelView)};
-	*this = color;
-	return *this;
-}
-
 
 Surface::Surface(SDL_Surface *surface) : surface{surface}, managed{true}
 {
@@ -197,7 +133,7 @@ Surface Surface::convert(const SDL_PixelFormat *fmt)
 	return temp;
 }
 
-void Surface::blitSurface(Surface &dst, const SDL_Rect *srcrect, SDL_Rect *dstrect)
+void Surface::blitSurface(Surface &dst, const Rect *srcrect, Rect *dstrect)
 {
 	if (!surface)
 		throw std::runtime_error{"Surface::blitSurface() failed: surface is nullptr"};
@@ -210,7 +146,7 @@ void Surface::blitSurface(Surface &dst, const SDL_Rect *srcrect, SDL_Rect *dstre
 	}
 }
 
-void Surface::blitScaled(Surface &dst, const SDL_Rect *srcrect, SDL_Rect *dstrect)
+void Surface::blitScaled(Surface &dst, const Rect *srcrect, Rect *dstrect)
 {
 	if (!surface)
 		throw std::runtime_error{"Surface::blitScaled() failed: surface is nullptr"};
@@ -223,7 +159,7 @@ void Surface::blitScaled(Surface &dst, const SDL_Rect *srcrect, SDL_Rect *dstrec
 	}
 }
 
-void Surface::fillRect(const SDL_Rect *rect, const SDL_Color &color)
+void Surface::fillRect(const Rect *rect, const Color &color)
 {
 	if (!surface)
 		throw std::runtime_error{"Surface::fillRect() failed: surface is nullptr"};
@@ -307,4 +243,6 @@ PixelView Surface::operator()(int row, int col)
 	return {static_cast<Uint8*>(getPixels()) + row * getPitch() + col * getFormat()->BytesPerPixel,
 			getFormat()};
 }
+
+} // namespace sw
 

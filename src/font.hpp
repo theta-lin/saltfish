@@ -8,6 +8,9 @@
 #include <SDL_ttf.h>
 #include "surface.hpp"
 
+namespace sw
+{
+
 namespace fs = std::filesystem;
 
 class Font
@@ -25,9 +28,9 @@ public:
 	void close();
 
 	// always use utf-8 text when rendering font
-	Surface renderSolid(std::string_view text, SDL_Color fg);
-	Surface renderShaded(std::string_view text, SDL_Color fg, SDL_Color bg);
-	Surface renderBlended(std::string_view text, SDL_Color fg);
+	Surface renderSolid(std::string_view text, Color fg);
+	Surface renderShaded(std::string_view text, Color fg, Color bg);
+	Surface renderBlended(std::string_view text, Color fg);
 
 	void setStyle(int style);
 	int getStyle();
@@ -39,6 +42,8 @@ public:
 	std::string fontFaceFamilyName();
 	std::string fontFaceStyleName();
 };
+
+} // namespace sw
 
 #endif // ifndef FONT_HPP
 

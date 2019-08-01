@@ -1,5 +1,8 @@
 #include "font.hpp"
 
+namespace sw
+{
+
 Font::Font() : font{nullptr}
 {
 }
@@ -38,7 +41,7 @@ void Font::close()
 	font = nullptr;
 }
 
-Surface Font::renderSolid(std::string_view text, SDL_Color fg)
+Surface Font::renderSolid(std::string_view text, Color fg)
 {
 	Surface surface{TTF_RenderText_Solid(font, text.data(), fg)};
 	if (!surface)
@@ -50,7 +53,7 @@ Surface Font::renderSolid(std::string_view text, SDL_Color fg)
 	return surface;
 }
 
-Surface Font::renderShaded(std::string_view text, SDL_Color fg, SDL_Color bg)
+Surface Font::renderShaded(std::string_view text, Color fg, Color bg)
 {
 	Surface surface{TTF_RenderText_Shaded(font, text.data(), fg, bg)};
 	if (!surface)
@@ -62,7 +65,7 @@ Surface Font::renderShaded(std::string_view text, SDL_Color fg, SDL_Color bg)
 	return surface;
 }
 
-Surface Font::renderBlended(std::string_view text, SDL_Color fg)
+Surface Font::renderBlended(std::string_view text, Color fg)
 {
 	Surface surface{TTF_RenderText_Blended(font, text.data(), fg)};
 	if (!surface)
@@ -113,4 +116,6 @@ std::string Font::fontFaceStyleName()
 {
 	return TTF_FontFaceStyleName(font);
 }
+
+} // namespace sw
 

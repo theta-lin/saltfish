@@ -9,7 +9,10 @@
 #include "config.hpp"
 #include "surface.hpp"
 
-class Video
+namespace sw
+{
+
+class Window
 {
 private:
 	Log &logger;
@@ -17,9 +20,8 @@ private:
 	Surface surface;
 
 public:
-	Video(Log &logger);
-	Video(Log &logger, const std::string &title, const Config &config);
-	~Video();
+	Window(Log &logger, const std::string &title, const Config &config);
+	~Window();
 
 	void init(const std::string &title, const Config &config);
 	void cleanup();
@@ -27,6 +29,8 @@ public:
 	void update();
 	operator bool();
 };
+
+} // namespace sw
 
 #endif // ifndef VIDEO_HPP
 

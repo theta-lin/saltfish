@@ -1,31 +1,29 @@
-#include "video.hpp"
+#include "window.hpp"
 
-Video::Video(Log &logger) : logger{logger}, window{nullptr}
+namespace sw
 {
-}
 
-Video::Video(Log &logger, const std::string &title, const Config &config) : logger{logger}, window{nullptr}
+Window::Window(Log &logger, const std::string &title, const Config &config) : logger{logger}, window{nullptr}
 {
 	init(title, config);
 }
 
-Video::~Video()
+Window::~Window()
 {
-	if (window)
-		cleanup();
+	cleanup();
 }
 
-void Video::init(const std::string &title, const Config &config)
+void Window::init(const std::string &title, const Config &config)
 {
 	if (window)
-		throw std::runtime_error{"Video::init() failed: window already exist"};
+		throw std::runtime_error{"Window::init() failed: window already exist"};
 
 	int width{640}, height{480};
 	config.get("window.width", width);
 	config.get("window.height", height);
 
 	logger.lock();
-	logger.GET(LogLevel::info) << "Initialize video mode: " << width << 'x' << height << std::endl;
+	logger.GET(Log::info) << "Initialize video mode: " << width << 'x' << height << std::endl;
 	logger.unlock();
 
 	window = SDL_CreateWindow(title.c_str() , SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
@@ -46,41 +44,43 @@ void Video::init(const std::string &title, const Config &config)
 	surface.setManaged(false);
 }
 
-void Video::cleanup()
+void Window::cleanup()
 {
 	logger.lock();
-	logger.GET(LogLevel::info) << "Cleanup video" << std::endl;
+	logger.GET(Log::info) << "Cleanup video" << std::endl;
 	logger.unlock();
 
 	if (!window)
-		throw std::runtime_error{"Video::cleanup() failed: window is nullptr"};
+		throw std::runtime_error{"Window::cleanup() failed: window is nullptr"};
 	SDL_DestroyWindow(window);
 }
 
-Surface& Video::getSurface()
+Surface& Window::getSurface()
 {
 	if (!window)
-		throw std::runtime_error{"Video::getSurface() failed: window is nullptr"};
+		throw std::runtime_error{"Window::getSurface() failed: window is nullptr"};
 	return surface;
 }
 
-void Video::update()
+void Window::update()
 {
 	if (!window)
-		throw std::runtime_error{"Video::update() failed: window is nullptr"};
+		throw std::runtime_error{"Window::update() failed: window is nullptr"};
 	if (SDL_UpdateWindowSurface(window) < 0)
 	{
-		std::string message{"Video::update() failed: "};
+		std::string message{"Window::update() failed: "};
 		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}
 }
 
-Video::operator bool()
+Window::operator bool()
 {
 	if (window)
 		return true;
 	else
 		return false;
 }
+
+} // namespace sw
 

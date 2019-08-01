@@ -19,7 +19,7 @@ public:
 	{
 	}
 
-	void draw(const SDL_Color &color, Surface &surface);
+	void draw(const sw::Color &color, sw::Surface &surface);
 };
 
 #endif // ifndef LINE_HPP

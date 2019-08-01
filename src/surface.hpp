@@ -4,23 +4,10 @@
 #include <string>
 #include <stdexcept>
 #include <SDL.h>
+#include "pixels.hpp"
 
-class PixelView
+namespace sw
 {
-private:
-	Uint8 *const pixel;
-	const SDL_PixelFormat *const format;
-
-public:
-	PixelView(Uint8 *const pixel, const SDL_PixelFormat *const format);
-	PixelView(const PixelView &pixelView) = delete;
-	PixelView(PixelView &&pixelView) = delete;
-
-	operator Uint32() const;
-	operator SDL_Color() const;
-	PixelView& operator=(const SDL_Color &color);
-	PixelView& operator=(const PixelView &pixelView);
-};
 
 class Surface
 {
@@ -50,9 +37,9 @@ public:
 	bool getManaged();
 
 	Surface convert(const SDL_PixelFormat *fmt);
-	void blitSurface(Surface &dst, const SDL_Rect *srcrect, SDL_Rect *dstrect);
-	void blitScaled(Surface &dst, const SDL_Rect *srcrect, SDL_Rect *dstrect);
-	void fillRect(const SDL_Rect *rect, const SDL_Color &color);
+	void blitSurface(Surface &dst, const Rect *srcrect, Rect *dstrect);
+	void blitScaled(Surface &dst, const Rect *srcrect, Rect *dstrect);
+	void fillRect(const Rect *rect, const Color &color);
 
 	void lock();
 	void unlock();
@@ -64,6 +51,8 @@ public:
 	PixelView operator[](int index);
 	PixelView operator()(int row, int col);
 };
+
+} // namespace sw
 
 #endif // ifndef SURFACE_HPP
 

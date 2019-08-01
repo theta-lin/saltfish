@@ -31,39 +31,39 @@ public:
 	int_type overflow(int_type ch) final;
 };
 
-enum class LogLevel
-{
-	error = 0,
-	warning = 1,
-	info = 2,
-	debug = 3
-};
-
-std::string_view stringOfLogLevel(LogLevel level);
-
 class Log
 {
+public:
+	enum Level
+	{
+		error = 0,
+		warning = 1,
+		info = 2,
+		debug = 3
+	};
+
 private:
 	std::mutex mutex;
 	ComposedBuffer buffer;
 	std::ostream out;
 	static NullBuffer nullBuffer;
 	static std::ostream nullOut;
-	LogLevel level;
+	Level level;
+	static std::array<std::string, 4> levelToString;
 
 public:
-	Log(LogLevel level);
+	Log(Level level);
 	void lock();
 	void unlock();
-	void setLevel(LogLevel level);
-	LogLevel getLevel();
+	void setLevel(Level level);
+	Level getLevel();
 	void bind(std::ostream &observer);
 
 	/*
 	 * Return a std::ostream to directly log to
 	 * RECOMMAND USING THE MACRO WRAPPER
 	 */
-	std::ostream& get(LogLevel level, std::string fileName, int lineNumber);
+	std::ostream& get(Level level, std::string fileName, int lineNumber);
 };
 
 /*

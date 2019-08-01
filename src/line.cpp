@@ -1,6 +1,6 @@
 #include "line.hpp"
 
-void Line::draw(const SDL_Color &color, Surface &surface)
+void Line::draw(const sw::Color &color, sw::Surface &surface)
 {
 	double x0{p0[0]}, x1{p1[0]};
 	double y0{p0[1]}, y1{p1[1]};
