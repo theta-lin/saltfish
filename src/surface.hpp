@@ -36,8 +36,8 @@ public:
 	bool getMustLock();
 	bool getManaged();
 
-	Surface convert(const SDL_PixelFormat *fmt);
-	void blitSurface(Surface &dst, const Rect *srcrect, Rect *dstrect);
+	Surface convert(Uint32 pixel_format);
+	void blit(Surface &dst, const Rect *srcrect, Rect *dstrect);
 	void blitScaled(Surface &dst, const Rect *srcrect, Rect *dstrect);
 	void fillRect(const Rect *rect, const Color &color);
 

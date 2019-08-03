@@ -7,7 +7,7 @@ Font::Font() : font{nullptr}
 {
 }
 
-Font::Font(const fs::path &file, int ptsize, long index) : font{nullptr}
+Font::Font(const std::filesystem::path &file, int ptsize, long index) : font{nullptr}
 {
 	open(file, ptsize, index);
 }
@@ -18,7 +18,7 @@ Font::~Font()
 		close();
 }
 
-void Font::open(const fs::path &file, int ptsize, long index)
+void Font::open(const std::filesystem::path &file, int ptsize, long index)
 {
 	if (font)
 		throw std::runtime_error{"Font::open() failed: font already open"};
@@ -41,7 +41,12 @@ void Font::close()
 	font = nullptr;
 }
 
-Surface Font::renderSolid(std::string_view text, Color fg)
+Font::operator bool()
+{
+	return font != nullptr;
+}
+
+Surface Font::renderSolid(std::string_view text, const Color &fg)
 {
 	Surface surface{TTF_RenderText_Solid(font, text.data(), fg)};
 	if (!surface)
@@ -53,9 +58,9 @@ Surface Font::renderSolid(std::string_view text, Color fg)
 	return surface;
 }
 
-Surface Font::renderShaded(std::string_view text, Color fg, Color bg)
+Surface Font::renderShaded(std::string_view text, const ColorPair &color)
 {
-	Surface surface{TTF_RenderText_Shaded(font, text.data(), fg, bg)};
+	Surface surface{TTF_RenderText_Shaded(font, text.data(), color.first, color.second)};
 	if (!surface)
 	{
 		std::string message{"Font::renderShaded() failed: "};
@@ -65,7 +70,7 @@ Surface Font::renderShaded(std::string_view text, Color fg, Color bg)
 	return surface;
 }
 
-Surface Font::renderBlended(std::string_view text, Color fg)
+Surface Font::renderBlended(std::string_view text, const Color &fg)
 {
 	Surface surface{TTF_RenderText_Blended(font, text.data(), fg)};
 	if (!surface)

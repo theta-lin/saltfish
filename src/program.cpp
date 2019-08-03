@@ -1,6 +1,29 @@
 #include "program.hpp"
 
-ProgramState::ProgramState(Program &program) : program{program}
+Menu makeMenuDefault(const doubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &exeDir)
+{
+	return {dimension, itemHeight, gapHeight,
+		{{255, 255, 255, 255}, {100, 100, 100, 240}},
+		{{50, 50, 50, 255}, {70, 70, 70, 240}},
+		{{200, 100, 0, 255}, {255, 255, 255, 240}},
+		exeDir / "font" / "DejaVuSansMono.ttf"};
+}
+
+void drawBackground(sw::Surface &surface, const sw::Rect &rect)
+{
+	for (int row{0}; row < rect.h; ++row)
+	{
+		for (int col{0}; col < rect.w; ++col)
+		{
+			if ((row / 150 + col / 150) & 1)
+				surface(rect.y + row, rect.x + col) = {0, 230, 50, 255};
+			else
+				surface(rect.y + row, rect.x + col) = {50, 150, 0, 255};
+		}
+	}
+}
+
+ProgramState::ProgramState(Program &program) : program{program}, ui{program.getSurface()}, next{nullptr}
 {
 }
 
@@ -8,59 +31,37 @@ ProgramState::~ProgramState()
 {
 }
 
-MenuState::MenuState(Program &program) : ProgramState{program}
+std::unique_ptr<ProgramState> ProgramState::handleEvent(const sw::Event &event)
 {
-	sw::Font font{program.getExeDir() / "font" / "DejaVuSansMono.ttf", 50};
-	line1 = font.renderBlended("1: Start Game", {255, 255, 255, 255});
-	line2 = font.renderBlended("2: Start Editor", {255, 255, 255, 255});
-	line3 = font.renderBlended("3: Quit Game", {255, 255, 255, 255});
+	if (event.type == SDL_QUIT)
+		next = std::make_unique<ExitState>(program);
+	else
+		ui.handleEvent(event);
+	return std::move(next);
 }
 
-std::unique_ptr<ProgramState> MenuState::handleInput(const SDL_Event &event)
+void ProgramState::update()
 {
-	switch (event.type)
-	{
-	case SDL_QUIT:
-		return std::make_unique<ExitState>(program);
-
-	case SDL_KEYDOWN:
-	{
-		switch (event.key.keysym.sym)
-		{
-		case SDLK_1:
-			return std::make_unique<GameState>(program);
-		case SDLK_2:
-			return std::make_unique<EditorState>(program);
-		case SDLK_3:
-			return std::make_unique<ExitState>(program);
-		default:
-			return nullptr;
-		}
-	}
-
-	default:
-		return nullptr;
-	}
+	ui.update();
 }
 
-void MenuState::update()
+MenuState::MenuState(Program &program) : ProgramState{program}, background{{0.0, 0.0, 1.0, 1.0}, drawBackground}, menu{makeMenuDefault({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.getExeDir())}
 {
-	program.getSurface().fillRect(nullptr, {0, 0, 0, 255});
-	sw::Rect dist1{200, 50, -1, -1};
-	line1.blitSurface(program.getSurface(), nullptr, &dist1);
-	sw::Rect dist2{200, 110, -1, -1};
-	line2.blitSurface(program.getSurface(), nullptr, &dist2);
-	sw::Rect dist3{200, 170, -1, -1};
-	line3.blitSurface(program.getSurface(), nullptr, &dist3);
+	ui.add(background);
+	menu.add({"Start Game", [this](){ this->next = std::make_unique<GameState>(this->program); }});
+	menu.add({"Start Editor", [this](){ this->next = std::make_unique<EditorState>(this->program); }});
+	menu.add({"Configuration", nullptr, false});
+	menu.add({"Quit Game", [this](){ this->next = std::make_unique<ExitState>(this->program); }});
+	ui.add(menu);
 }
 
 GameState::GameState(Program &program) : ProgramState{program}
 {
 	sw::Font font{program.getExeDir() / "font" / "DejaVuSansMono.ttf", 50};
-	line1 = font.renderBlended("1: Pause Game", {255, 255, 255, 255});
+	line1 = font.renderBlended("ESC: Pause Game", {255, 255, 255, 255});
 }
 
-std::unique_ptr<ProgramState> GameState::handleInput(const SDL_Event &event)
+std::unique_ptr<ProgramState> GameState::handleEvent(const sw::Event &event)
 {
 	switch (event.type)
 	{
@@ -69,9 +70,9 @@ std::unique_ptr<ProgramState> GameState::handleInput(const SDL_Event &event)
 
 	case SDL_KEYDOWN:
 	{
-		switch (event.key.keysym.sym)
+		switch (event.key.keysym.scancode)
 		{
-		case SDLK_1:
+		case SDL_SCANCODE_ESCAPE:
 			return std::make_unique<PauseState>(program);
 		default:
 			return nullptr;
@@ -87,63 +88,27 @@ void GameState::update()
 {
 	program.getSurface().fillRect(nullptr, {0, 0, 0, 255});
 	sw::Rect dist1{200, 50, -1, -1};
-	line1.blitSurface(program.getSurface(), nullptr, &dist1);
+	line1.blit(program.getSurface(), nullptr, &dist1);
 }
 
-PauseState::PauseState(Program &program) : ProgramState{program}
+PauseState::PauseState(Program &program)
+	: ProgramState{program}, menu{makeMenuDefault({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.getExeDir())}
 {
-	sw::Font font{program.getExeDir() / "font" / "DejaVuSansMono.ttf", 50};
-	line1 = font.renderBlended("1: Back To Game", {255, 255, 255, 255});
-	line2 = font.renderBlended("2: Quit To Menu", {255, 255, 255, 255});
-	line3 = font.renderBlended("3: Quit Game", {255, 255, 255, 255});
+
+	menu.add({"Back To Game", [this](){ this->next = std::make_unique<GameState>(this->program); }});
+	menu.add({"Quit To Menu", [this](){ this->next = std::make_unique<MenuState>(this->program); }});
+	menu.add({"Configuration", nullptr, false});
+	menu.add({"Quit Game", [this](){ this->next = std::make_unique<ExitState>(this->program); }});
+	ui.add(menu);
 }
-
-std::unique_ptr<ProgramState> PauseState::handleInput(const SDL_Event &event)
-{
-	switch (event.type)
-	{
-	case SDL_QUIT:
-		return std::make_unique<ExitState>(program);
-
-	case SDL_KEYDOWN:
-	{
-		switch (event.key.keysym.sym)
-		{
-		case SDLK_1:
-			return std::make_unique<GameState>(program);
-		case SDLK_2:
-			return std::make_unique<MenuState>(program);
-		case SDLK_3:
-			return std::make_unique<ExitState>(program);
-		default:
-			return nullptr;
-		}
-	}
-
-	default:
-		return nullptr;
-	}
-}
-
-void PauseState::update()
-{
-	program.getSurface().fillRect(nullptr, {0, 0, 0, 255});
-	sw::Rect dist1{200, 50, -1, -1};
-	line1.blitSurface(program.getSurface(), nullptr, &dist1);
-	sw::Rect dist2{200, 110, -1, -1};
-	line2.blitSurface(program.getSurface(), nullptr, &dist2);
-	sw::Rect dist3{200, 170, -1, -1};
-	line3.blitSurface(program.getSurface(), nullptr, &dist3);
-}
-
 
 EditorState::EditorState(Program &program) : ProgramState{program}
 {
 	sw::Font font{program.getExeDir() / "font" / "DejaVuSansMono.ttf", 50};
-	line1 = font.renderBlended("1: Quit To Menu", {255, 255, 255, 255});
+	line1 = font.renderBlended("ESC: Quit To Menu", {255, 255, 255, 255});
 }
 
-std::unique_ptr<ProgramState> EditorState::handleInput(const SDL_Event &event)
+std::unique_ptr<ProgramState> EditorState::handleEvent(const sw::Event &event)
 {
 	switch (event.type)
 	{
@@ -152,9 +117,9 @@ std::unique_ptr<ProgramState> EditorState::handleInput(const SDL_Event &event)
 
 	case SDL_KEYDOWN:
 	{
-		switch (event.key.keysym.sym)
+		switch (event.key.keysym.scancode)
 		{
-		case SDLK_1:
+		case SDL_SCANCODE_ESCAPE:
 			return std::make_unique<MenuState>(program);
 		default:
 			return nullptr;
@@ -170,14 +135,14 @@ void EditorState::update()
 {
 	program.getSurface().fillRect(nullptr, {0, 0, 0, 255});
 	sw::Rect dist1{200, 50, -1, -1};
-	line1.blitSurface(program.getSurface(), nullptr, &dist1);
+	line1.blit(program.getSurface(), nullptr, &dist1);
 }
 
 ExitState::ExitState(Program &program) : ProgramState{program}
 {
 }
 
-std::unique_ptr<ProgramState> ExitState::handleInput([[maybe_unused]] const SDL_Event &event)
+std::unique_ptr<ProgramState> ExitState::handleEvent([[maybe_unused]] const sw::Event &event)
 {
 	return nullptr;
 }
@@ -192,9 +157,9 @@ Program::Program(Log &logger, const fs::path &exeDir, sw::Surface &surface)
 {
 }
 
-void Program::handleInput(const SDL_Event &event)
+void Program::handleEvent(const sw::Event &event)
 {
-	std::unique_ptr<ProgramState> nextState{state->handleInput(event)};
+	std::unique_ptr<ProgramState> nextState{state->handleEvent(event)};
 	if (nextState)
 		state = std::move(nextState);
 }

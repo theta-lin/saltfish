@@ -4,12 +4,15 @@
 #include <string>
 #include <memory>
 #include <filesystem>
-#include <SDL.h>
 #include "log.hpp"
 #include "surface.hpp"
 #include "font.hpp"
+#include "event.hpp"
+#include "ui.hpp"
 
 namespace fs = std::filesystem;
+Menu makeMenuDefault(const doubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &exeDir);
+void drawBackground(sw::Surface &surface, const sw::Rect &rect);
 
 class Program;
 
@@ -17,25 +20,24 @@ class ProgramState
 {
 protected:
 	Program &program;
+	UI ui;
+	std::unique_ptr<ProgramState> next;
 	ProgramState(Program &program);
 
 public:
 	virtual ~ProgramState();
-	virtual std::unique_ptr<ProgramState> handleInput(const SDL_Event &event) = 0;
-	virtual void update() = 0;
+	virtual std::unique_ptr<ProgramState> handleEvent(const sw::Event &event);
+	virtual void update();
 };
 
 class MenuState : public ProgramState
 {
 private:
-	sw::Surface line1;
-	sw::Surface line2;
-	sw::Surface line3;
+	DrawableWidget background;
+	Menu menu;
 
 public:
 	MenuState(Program &program);
-	std::unique_ptr<ProgramState> handleInput(const SDL_Event &event) override;
-	void update() override;
 };
 
 class GameState : public ProgramState
@@ -45,21 +47,17 @@ private:
 
 public:
 	GameState(Program &program);
-	std::unique_ptr<ProgramState> handleInput(const SDL_Event &event) override;
+	std::unique_ptr<ProgramState> handleEvent(const sw::Event &event) override;
 	void update() override;
 };
 
 class PauseState : public ProgramState
 {
 private:
-	sw::Surface line1;
-	sw::Surface line2;
-	sw::Surface line3;
+	Menu menu;
 
 public:
 	PauseState(Program &program);
-	std::unique_ptr<ProgramState> handleInput(const SDL_Event &event) override;
-	void update() override;
 };
 
 class EditorState : public ProgramState
@@ -69,7 +67,7 @@ private:
 
 public:
 	EditorState(Program &program);
-	std::unique_ptr<ProgramState> handleInput(const SDL_Event &event) override;
+	std::unique_ptr<ProgramState> handleEvent(const sw::Event &event) override;
 	void update() override;
 };
 
@@ -77,7 +75,7 @@ class ExitState : public ProgramState
 {
 public:
 	ExitState(Program &program);
-	std::unique_ptr<ProgramState> handleInput([[maybe_unused]] const SDL_Event &event) override;
+	std::unique_ptr<ProgramState> handleEvent([[maybe_unused]] const sw::Event &event) override;
 	void update() override;
 };
 
@@ -91,13 +89,14 @@ private:
 
 public:
 	Program(Log &logger, const fs::path &exeDir, sw::Surface &surface);
-	void handleInput(const SDL_Event &event);
+	void handleEvent(const sw::Event &event);
 	void update();
 	bool isExited();
 
 	Log& getLog();
 	sw::Surface& getSurface();
 	const fs::path& getExeDir();
+	UI& getUI();
 };
 
 #endif // ifndef PROGRAM_HPP

@@ -2,6 +2,7 @@
 #define PIXELS_HPP
 
 #include <stdexcept>
+#include <utility>
 #include <SDL.h>
 
 namespace sw
@@ -9,6 +10,8 @@ namespace sw
 
 using Rect = SDL_Rect;
 using Color = SDL_Color;
+using ColorPair = std::pair<sw::Color, sw::Color>;
+
 
 class PixelView
 {

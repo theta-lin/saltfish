@@ -14,6 +14,7 @@
 #include "font.hpp"
 #include "line.hpp"
 #include "program.hpp"
+#include "event.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -91,14 +92,13 @@ int main(int argc, char *argv[])
 			throw std::runtime_error{"FATAL: cannot open config file"};
 
 		sw::Window window{logger, "saltfish", config};
-
 		Program program{logger, exeDir, window.getSurface()};
 
-		SDL_Event event;
+		sw::Event event;
 		while(!program.isExited())
 		{
 			while (SDL_PollEvent(&event))
-				program.handleInput(event);
+				program.handleEvent(event);
 			program.update();
 			window.update();
 		}

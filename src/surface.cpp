@@ -117,12 +117,12 @@ bool Surface::getManaged()
 	return managed;
 }
 
-Surface Surface::convert(const SDL_PixelFormat *fmt)
+Surface Surface::convert(Uint32 pixel_format)
 {
 	if (!surface)
 		throw std::runtime_error{"Surface::convert() failed: surface is nullptr"};
 
-	SDL_Surface *temp{SDL_ConvertSurface(surface, fmt, 0)};
+	SDL_Surface *temp{SDL_ConvertSurfaceFormat(surface, pixel_format, 0)};
 	if (!temp)
 	{
 		std::string message{"Surface::convert() failed: "};
@@ -133,14 +133,14 @@ Surface Surface::convert(const SDL_PixelFormat *fmt)
 	return temp;
 }
 
-void Surface::blitSurface(Surface &dst, const Rect *srcrect, Rect *dstrect)
+void Surface::blit(Surface &dst, const Rect *srcrect, Rect *dstrect)
 {
 	if (!surface)
-		throw std::runtime_error{"Surface::blitSurface() failed: surface is nullptr"};
+		throw std::runtime_error{"Surface::blit() failed: surface is nullptr"};
 
 	if (SDL_BlitSurface(surface, srcrect, dst.surface, dstrect) < 0)
 	{
-		std::string message{"Surface::blitSurface() failed: "};
+		std::string message{"Surface::blit() failed: "};
 		message += SDL_GetError();
 		throw std::runtime_error{message};
 	}

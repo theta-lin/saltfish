@@ -5,13 +5,12 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <SDL_ttf.h>
 #include "surface.hpp"
 
 namespace sw
 {
-
-namespace fs = std::filesystem;
 
 class Font
 {
@@ -21,16 +20,17 @@ private:
 public:
 	Font();
 	Font(Font &font) = delete;
-	Font(const fs::path &file, int ptsize, long index = 0);
+	Font(const std::filesystem::path &file, int ptsize, long index = 0);
 	~Font();
 
-	void open(const fs::path &file, int ptsize, long index = 0);
+	void open(const std::filesystem::path &file, int ptsize, long index = 0);
 	void close();
+	operator bool();
 
 	// always use utf-8 text when rendering font
-	Surface renderSolid(std::string_view text, Color fg);
-	Surface renderShaded(std::string_view text, Color fg, Color bg);
-	Surface renderBlended(std::string_view text, Color fg);
+	Surface renderSolid(std::string_view text, const Color &fg);
+	Surface renderShaded(std::string_view text, const ColorPair &color);
+	Surface renderBlended(std::string_view text, const Color &fg);
 
 	void setStyle(int style);
 	int getStyle();
