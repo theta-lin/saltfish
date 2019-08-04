@@ -15,6 +15,7 @@
 #include "line.hpp"
 #include "program.hpp"
 #include "event.hpp"
+#include "game.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -24,7 +25,7 @@ int main(int argc, char *argv[])
 	static_assert(std::numeric_limits<double>::has_quiet_NaN, "Requires quiet NaN for double");
 
 	Log logger{Log::debug};
-	logger.bind(std::cout);
+	logger.bind(std::clog);
 
 	logger.lock();
 	logger.GET(Log::info) << "Started program" << std::endl;
@@ -60,6 +61,11 @@ int main(int argc, char *argv[])
 	assert(argc != 0);
 	namespace fs = std::filesystem;
 	fs::path exeDir{fs::current_path() / fs::path{argv[0]}.parent_path()};
+
+	//Game game{logger, exeDir};
+	//game.loadLevel("test.lvl");
+	//game.print();
+	//return 0;
 
 	try
 	{

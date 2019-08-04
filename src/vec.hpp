@@ -1,13 +1,14 @@
 #ifndef VEC_HPP
 #define VEC_HPP
 
+#include <cstddef>
 #include <cmath>
 #include <cstring>
 #include <cassert>
 #include <iostream>
 #include <initializer_list>
 
-template<size_t size, typename T>
+template<std::size_t size, typename T>
 class Vec
 {
 private:
@@ -22,7 +23,7 @@ public:
 	Vec(const std::initializer_list<T> init)
 	{
 		assert(init.size() == size);
-		size_t i{0};
+		std::size_t i{0};
 		for (const T &element : init)
 		{
 			data[i] = element;
@@ -30,8 +31,8 @@ public:
 		}
 	}
 
-	T& operator[](const size_t index) { return data[index]; }
-	const T& operator[](const size_t index) const { return data[index]; }
+	T& operator[](const std::size_t index) { return data[index]; }
+	const T& operator[](const std::size_t index) const { return data[index]; }
 
 	Vec<size, T> operator-() const
 	{
@@ -43,7 +44,7 @@ public:
 
 	void operator+=(const Vec &v)
 	{
-		for (size_t i{0}; i < size; ++i)
+		for (std::size_t i{0}; i < size; ++i)
 		{
 			data[i] += v.data[i];
 		}
@@ -51,7 +52,7 @@ public:
 
 	void operator-=(const Vec &v)
 	{
-		for (size_t i{0}; i < size; ++i)
+		for (std::size_t i{0}; i < size; ++i)
 		{
 			data[i] -= v.data[i];
 		}
@@ -59,7 +60,7 @@ public:
 
 	void operator*=(const T &scalar)
 	{
-		for (size_t i{0}; i < size; ++i)
+		for (std::size_t i{0}; i < size; ++i)
 		{
 			data[i] *= scalar;
 		}
@@ -67,7 +68,7 @@ public:
 
 	void operator/=(const T &scalar)
 	{
-		for (size_t i{0}; i < size; ++i)
+		for (std::size_t i{0}; i < size; ++i)
 		{
 			data[i] /= scalar;
 		}
@@ -78,7 +79,7 @@ public:
 	Vec<size, T> normalize() const { return *this / norm(); }
 };
 
-template<size_t size, typename T>
+template<std::size_t size, typename T>
 Vec<size, T> operator+(const Vec<size, T> &v0, const Vec<size, T> &v1)
 {
 	Vec<size, T> temp{v0};
@@ -86,7 +87,7 @@ Vec<size, T> operator+(const Vec<size, T> &v0, const Vec<size, T> &v1)
 	return temp;
 }
 
-template<size_t size, typename T>
+template<std::size_t size, typename T>
 Vec<size, T> operator-(const Vec<size, T> &v0, const Vec<size, T> &v1)
 {
 	Vec<size, T> temp{v0};
@@ -94,7 +95,7 @@ Vec<size, T> operator-(const Vec<size, T> &v0, const Vec<size, T> &v1)
 	return temp;
 }
 
-template<size_t size, typename T>
+template<std::size_t size, typename T>
 Vec<size, T> operator*(const Vec<size, T> &v, const T &scalar)
 {
 	Vec<size, T> temp{v};
@@ -102,13 +103,13 @@ Vec<size, T> operator*(const Vec<size, T> &v, const T &scalar)
 	return temp;
 }
 
-template<size_t size, typename T>
+template<std::size_t size, typename T>
 Vec<size, T> operator*(const T &scalar, const Vec<size, T> &v)
 {
 	return v * scalar;
 }
 
-template<size_t size, typename T>
+template<std::size_t size, typename T>
 Vec<size, T> operator/(const Vec<size, T> &v, const T &scalar)
 {
 	Vec<size, T> temp{v};
@@ -116,7 +117,7 @@ Vec<size, T> operator/(const Vec<size, T> &v, const T &scalar)
 	return temp;
 }
 
-template<size_t size, typename T>
+template<std::size_t size, typename T>
 std::ostream& operator<<(std::ostream &out, const Vec<size, T> &v)
 {
 	out << '(';
@@ -127,11 +128,11 @@ std::ostream& operator<<(std::ostream &out, const Vec<size, T> &v)
 	return out;
 }
 
-template<size_t size, typename T>
+template<std::size_t size, typename T>
 T dot(const Vec<size, T> &v0, const Vec<size, T> &v1)
 {
 	T product{};
-	for (size_t i{0}; i < size; ++i)
+	for (std::size_t i{0}; i < size; ++i)
 		product += v0[i] * v1[i];
 	return product;
 }
