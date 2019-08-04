@@ -66,7 +66,8 @@ void Menu::Item::update(int width, int height, const sw::ColorPair &color, sw::F
 	cache.create(width, height);
 	cache.fillRect(nullptr, color.second);
 	sw::Surface textRender{font.renderBlended(' ' + text, color.first)};
-	textRender.blit(cache, nullptr, nullptr);
+	sw::Rect dstRect{0, static_cast<int>(height * (1.0 - fontScale) * 0.5), 0, 0};
+	textRender.blit(cache, nullptr, &dstRect);
 }
 
 sw::Surface& Menu::Item::getCache()
@@ -86,11 +87,27 @@ void Menu::updateItem(int index)
 		return;
 
 	if (index == selected)
-		items[index].update(real.w, itemHeightReal, selectedColor, font);
-	else if (items[index].getEnable())
-		items[index].update(real.w, itemHeightReal, normalColor, font);
+	{
+		if (items[index].getEnable())
+		{
+			items[index].update(real.w, itemHeightReal, selectedColor, font);
+		}
+		else
+		{
+			items[index].update(real.w, itemHeightReal, disabledSelectedColor, font);
+		}
+	}
 	else
-		items[index].update(real.w, itemHeightReal, disabledColor, font);
+	{
+		if (items[index].getEnable())
+		{
+			items[index].update(real.w, itemHeightReal, normalColor, font);
+		}
+		else
+		{
+			items[index].update(real.w, itemHeightReal, disabledNormalColor, font);
+		}
+	}
 }
 
 int Menu::itemUnderCursor(int x, int y)
@@ -112,8 +129,8 @@ int Menu::itemUnderCursor(int x, int y)
 		return noSelected;
 }
 
-Menu::Menu(const doubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &disabledColor, const sw::ColorPair &selectedColor, const std::filesystem::path &fontPath)
-	: Widget{dimension}, itemHeight{itemHeight}, gapHeight{gapHeight}, normalColor{normalColor}, disabledColor{disabledColor}, selectedColor{selectedColor}, fontPath{fontPath}
+Menu::Menu(const doubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &selectedColor, const sw::ColorPair &disabledNormalColor, const sw::ColorPair &disabledSelectedColor, const std::filesystem::path &fontPath)
+	: Widget{dimension}, itemHeight{itemHeight}, gapHeight{gapHeight}, normalColor{normalColor}, selectedColor{selectedColor}, disabledNormalColor{disabledNormalColor}, disabledSelectedColor{disabledSelectedColor}, fontPath{fontPath}
 {
 	selected = noSelected;
 }
@@ -127,8 +144,7 @@ void Menu::reInit(int wScreen, int hScreen)
 	if (font)
 		font.close();
 
-	static const double fontScale{0.8};
-	font.open(fontPath, static_cast<int>(itemHeight * hScreen * fontScale));
+	font.open(fontPath, static_cast<int>(itemHeight * hScreen * Item::fontScale));
 
 	for (int i{0}; i < static_cast<int>(items.size()); ++i)
 		updateItem(i);
@@ -155,7 +171,7 @@ void Menu::handleEvent(const sw::Event &event)
 				{
 					int origin{selected};
 					++selected;
-					if (static_cast<size_t>(selected) == items.size())
+					if (static_cast<std::size_t>(selected) == items.size())
 						selected = 0;
 					updateItem(origin);
 					updateItem(selected);
@@ -224,7 +240,7 @@ void Menu::handleEvent(const sw::Event &event)
 void Menu::draw(sw::Surface &surface)
 {
 	sw::Rect current{real.x, real.y, 0, 0};
-	for (size_t i{0}; i < items.size(); ++i)
+	for (std::size_t i{0}; i < items.size(); ++i)
 	{
 		items[i].getCache().blit(surface, nullptr, &current);
 		current.y += itemHeightReal + gapHeightReal;

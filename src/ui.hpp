@@ -1,6 +1,7 @@
 #ifndef UI_HPP
 #define UI_HPP
 
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <list>
@@ -59,6 +60,8 @@ public:
 		sw::Surface cache;
 
 	public:
+		static constexpr double fontScale{0.75};
+
 		Item(std::string_view text, std::function<void()> onActivation, bool isEnable = true);
 		Item(const Item &item);
 		Item& operator=(const Item &item);
@@ -75,13 +78,14 @@ private:
 	double gapHeight;
 
 	sw::ColorPair normalColor;
-	sw::ColorPair disabledColor;
 	sw::ColorPair selectedColor;
+	sw::ColorPair disabledNormalColor;
+	sw::ColorPair disabledSelectedColor;
 
 	std::filesystem::path fontPath;
 	std::vector<Item> items;
 	int selected;
-	static const int noSelected{-1};
+	static constexpr int noSelected{-1};
 
 	int itemHeightReal;
 	int gapHeightReal;
@@ -91,10 +95,10 @@ private:
 	int itemUnderCursor(int x, int y);
 
 public:
-	static const int begin{-1};
-	static const int end{-2};
+	static constexpr int begin{-1};
+	static constexpr int end{-2};
 
-	Menu(const doubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &disabledColor, const sw::ColorPair &selectedColor, const std::filesystem::path &fontPath);
+	Menu(const doubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &selectedColor, const sw::ColorPair &disabledNormalColor, const sw::ColorPair &disabledSelectedColor, const std::filesystem::path &fontPath);
 	void reInit(int wScreen, int hScreen) override final;
 	void handleEvent(const sw::Event &event) override final;
 	void draw(sw::Surface &surface) override final;

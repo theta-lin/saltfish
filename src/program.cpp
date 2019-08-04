@@ -3,10 +3,11 @@
 Menu makeMenuDefault(const doubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &exeDir)
 {
 	return {dimension, itemHeight, gapHeight,
-		{{255, 255, 255, 255}, {100, 100, 100, 240}},
-		{{50, 50, 50, 255}, {70, 70, 70, 240}},
+		{{255, 255, 255, 255}, {80, 80, 80, 240}},
 		{{200, 100, 0, 255}, {255, 255, 255, 240}},
-		exeDir / "font" / "DejaVuSansMono.ttf"};
+		{{80, 80, 80, 255}, {120, 120, 120, 240}},
+		{{120, 120, 120, 255}, {180, 180, 180, 240}},
+		exeDir / "font" / "Terminus-Bold.ttf"};
 }
 
 void drawBackground(sw::Surface &surface, const sw::Rect &rect)
@@ -57,7 +58,7 @@ MenuState::MenuState(Program &program) : ProgramState{program}, background{{0.0,
 
 GameState::GameState(Program &program) : ProgramState{program}
 {
-	sw::Font font{program.getExeDir() / "font" / "DejaVuSansMono.ttf", 50};
+	sw::Font font{program.getExeDir() / "font" / "Terminus-Bold.ttf", 50};
 	line1 = font.renderBlended("ESC: Pause Game", {255, 255, 255, 255});
 }
 
@@ -104,7 +105,7 @@ PauseState::PauseState(Program &program)
 
 EditorState::EditorState(Program &program) : ProgramState{program}
 {
-	sw::Font font{program.getExeDir() / "font" / "DejaVuSansMono.ttf", 50};
+	sw::Font font{program.getExeDir() / "font" / "Terminus-Bold.ttf", 50};
 	line1 = font.renderBlended("ESC: Quit To Menu", {255, 255, 255, 255});
 }
 
