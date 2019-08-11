@@ -4,22 +4,22 @@ Menu makeMenuDefault(const doubleRect &dimension, double itemHeight, double gapH
 {
 	return {dimension, itemHeight, gapHeight,
 		{{255, 255, 255, 255}, {80, 80, 80, 240}},
-		{{200, 100, 0, 255}, {255, 255, 255, 240}},
+		{{255, 130, 0, 255}, {255, 255, 255, 240}},
 		{{80, 80, 80, 255}, {120, 120, 120, 240}},
 		{{120, 120, 120, 255}, {180, 180, 180, 240}},
 		exeDir / "font" / "Terminus-Bold.ttf"};
 }
 
-void drawBackground(sw::Surface &surface, const sw::Rect &rect)
+void drawBackground(sw::Surface &surface)
 {
-	for (int row{0}; row < rect.h; ++row)
+	for (int col{0}; col < surface.getWidth(); ++col)
 	{
-		for (int col{0}; col < rect.w; ++col)
+		for (int row{0}; row < surface.getHeight(); ++row)
 		{
-			if ((row / 150 + col / 150) & 1)
-				surface(rect.y + row, rect.x + col) = {0, 230, 50, 255};
+			if ((col / 150 + row / 150) & 1)
+				surface(col, row) = {0, 230, 50, 255};
 			else
-				surface(rect.y + row, rect.x + col) = {50, 150, 0, 255};
+				surface(col, row) = {50, 150, 0, 255};
 		}
 	}
 }
@@ -103,40 +103,14 @@ PauseState::PauseState(Program &program)
 	ui.add(menu);
 }
 
-EditorState::EditorState(Program &program) : ProgramState{program}
+EditorState::EditorState(Program &program) : ProgramState{program}, editor{program.getGame(), ui, program.getExeDir(), [this](){ this->next = std::make_unique<MenuState>(this->program); }}
 {
-	sw::Font font{program.getExeDir() / "font" / "Terminus-Bold.ttf", 50};
-	line1 = font.renderBlended("ESC: Quit To Menu", {255, 255, 255, 255});
 }
 
 std::unique_ptr<ProgramState> EditorState::handleEvent(const sw::Event &event)
 {
-	switch (event.type)
-	{
-	case SDL_QUIT:
-		return std::make_unique<ExitState>(program);
-
-	case SDL_KEYDOWN:
-	{
-		switch (event.key.keysym.scancode)
-		{
-		case SDL_SCANCODE_ESCAPE:
-			return std::make_unique<MenuState>(program);
-		default:
-			return nullptr;
-		}
-	}
-
-	default:
-		return nullptr;
-	}
-}
-
-void EditorState::update()
-{
-	program.getSurface().fillRect(nullptr, {0, 0, 0, 255});
-	sw::Rect dist1{200, 50, -1, -1};
-	line1.blit(program.getSurface(), nullptr, &dist1);
+	editor.handleEvent(event);
+	return ProgramState::handleEvent(event);
 }
 
 ExitState::ExitState(Program &program) : ProgramState{program}
@@ -154,7 +128,7 @@ void ExitState::update()
 }
 
 Program::Program(Log &logger, const fs::path &exeDir, sw::Surface &surface)
-	: logger{logger}, exeDir{exeDir}, surface{surface}, state{std::make_unique<MenuState>(*this)}
+	: logger{logger}, exeDir{exeDir}, surface{surface}, game{logger, exeDir}, state{std::make_unique<MenuState>(*this)}
 {
 }
 
@@ -188,5 +162,10 @@ sw::Surface& Program::getSurface()
 const fs::path& Program::getExeDir()
 {
 	return exeDir;
+}
+
+Game& Program::getGame()
+{
+	return game;
 }
 

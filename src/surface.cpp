@@ -105,18 +105,6 @@ SDL_PixelFormat* Surface::getFormat()
 	return surface->format;
 }
 
-bool Surface::getMustLock()
-{
-	if (!surface)
-		throw std::runtime_error{"Surface::getMustLock() failed: surface is nullptr"};
-	return SDL_MUSTLOCK(surface);
-}
-
-bool Surface::getManaged()
-{
-	return managed;
-}
-
 Surface Surface::convert(Uint32 pixel_format)
 {
 	if (!surface)
@@ -172,6 +160,16 @@ void Surface::fillRect(const Rect *rect, const Color &color)
 	}
 }
 
+bool Surface::setClipRect(const Rect *rect)
+{
+	return static_cast<bool>(SDL_SetClipRect(surface, rect));
+}
+
+void Surface::getClipRect(Rect *rect)
+{
+	SDL_GetClipRect(surface, rect);
+}
+
 void Surface::lock()
 {
 	if (!surface)
@@ -192,6 +190,13 @@ void Surface::unlock()
 	SDL_UnlockSurface(surface);
 }
 
+bool Surface::getMustLock()
+{
+	if (!surface)
+		throw std::runtime_error{"Surface::getMustLock() failed: surface is nullptr"};
+	return static_cast<bool>(SDL_MUSTLOCK(surface));
+}
+
 void Surface::setRLE(bool flag)
 {
 	if (!surface)
@@ -208,6 +213,11 @@ void Surface::setRLE(bool flag)
 void Surface::setManaged(bool flag)
 {
 	managed = flag;
+}
+
+bool Surface::getManaged()
+{
+	return managed;
 }
 
 Surface& Surface::operator=(Surface &&surface)
@@ -238,9 +248,9 @@ PixelView Surface::operator[](int index)
 			getFormat()};
 }
 
-PixelView Surface::operator()(int row, int col)
+PixelView Surface::operator()(int col , int row)
 {
-	return {static_cast<Uint8*>(getPixels()) + row * getPitch() + col * getFormat()->BytesPerPixel,
+	return {static_cast<Uint8*>(getPixels()) + col * getFormat()->BytesPerPixel + row * getPitch(),
 			getFormat()};
 }
 

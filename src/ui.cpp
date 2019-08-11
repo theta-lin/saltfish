@@ -21,14 +21,45 @@ void Widget::handleEvent([[maybe_unused]] const sw::Event &event)
 {
 }
 
-DrawableWidget::DrawableWidget(const doubleRect &dimension, std::function<void(sw::Surface&, const sw::Rect&)> onDraw)
+DrawableWidget::DrawableWidget(const doubleRect &dimension, std::function<void(sw::Surface&)> onDraw)
 	: Widget{dimension}, onDraw{onDraw}
 {
 }
 
 void DrawableWidget::draw(sw::Surface &surface)
 {
-	onDraw(surface, real);
+	surface.setClipRect(&real);
+	if (onDraw)
+		onDraw(surface);
+	surface.setClipRect(nullptr);
+}
+
+TextBar::TextBar(const doubleRect &dimension, const sw::ColorPair &color, std::filesystem::path fontPath)
+	: Widget{dimension}, fontPath{fontPath}, color{color}
+{
+}
+
+void TextBar::reInit(int wScreen, int hScreen)
+{
+	Widget::reInit(wScreen, hScreen);
+	if (font) font.close();
+	font.open(fontPath, static_cast<int>(real.h * fontScale));
+}
+
+void TextBar::draw(sw::Surface &surface)
+{
+	surface.fillRect(&real, color.second);
+	if (text.size() > 0)
+	{
+		sw::Surface textRender(font.renderBlended(text, color.first));
+		sw::Rect dstRect{real.x, real.y + static_cast<int>(real.h * (1.0 - fontScale) * 0.5), 0, 0};
+		textRender.blit(surface, nullptr, &dstRect);
+	}
+}
+
+std::string& TextBar::getText()
+{
+	return text;
 }
 
 Menu::Item::Item(std::string_view text, std::function<void()> onActivation, bool isEnable)
@@ -130,9 +161,8 @@ int Menu::itemUnderCursor(int x, int y)
 }
 
 Menu::Menu(const doubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &selectedColor, const sw::ColorPair &disabledNormalColor, const sw::ColorPair &disabledSelectedColor, const std::filesystem::path &fontPath)
-	: Widget{dimension}, itemHeight{itemHeight}, gapHeight{gapHeight}, normalColor{normalColor}, selectedColor{selectedColor}, disabledNormalColor{disabledNormalColor}, disabledSelectedColor{disabledSelectedColor}, fontPath{fontPath}
+	: Widget{dimension}, itemHeight{itemHeight}, gapHeight{gapHeight}, normalColor{normalColor}, selectedColor{selectedColor}, disabledNormalColor{disabledNormalColor}, disabledSelectedColor{disabledSelectedColor}, fontPath{fontPath}, selected{noSelected}
 {
-	selected = noSelected;
 }
 
 void Menu::reInit(int wScreen, int hScreen)
@@ -141,9 +171,7 @@ void Menu::reInit(int wScreen, int hScreen)
 	itemHeightReal = static_cast<int>(itemHeight * hScreen);
 	gapHeightReal = static_cast<int>(gapHeight * hScreen);
 
-	if (font)
-		font.close();
-
+	if (font) font.close();
 	font.open(fontPath, static_cast<int>(itemHeight * hScreen * Item::fontScale));
 
 	for (int i{0}; i < static_cast<int>(items.size()); ++i)
@@ -279,12 +307,13 @@ void Menu::remove(int index)
 	}
 }
 
-UI::UI(sw::Surface &surface) : surface{surface}
+UI::UI(sw::Surface &surface) : surface{&surface}
 {
 }
 
-void UI::reInit()
+void UI::reInit(sw::Surface &surface)
 {
+	this->surface = &surface;
 	for (auto &widget : widgets)
 		widget->reInit(surface.getWidth(), surface.getWidth());
 }
@@ -292,7 +321,7 @@ void UI::reInit()
 void UI::update()
 {
 	for (auto &widget : widgets)
-		widget->draw(surface);
+		widget->draw(*surface);
 }
 
 void UI::handleEvent(const sw::Event &event)
@@ -304,7 +333,7 @@ void UI::handleEvent(const sw::Event &event)
 void UI::add(Widget &widget)
 {
 	widgets.push_back(&widget);
-	widget.reInit(surface.getWidth(), surface.getHeight());
+	widget.reInit(surface->getWidth(), surface->getHeight());
 }
 
 void UI::remove(Widget &widget)

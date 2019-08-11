@@ -33,23 +33,25 @@ public:
 	int getPitch();
 	void* getPixels();
 	SDL_PixelFormat* getFormat();
-	bool getMustLock();
-	bool getManaged();
 
 	Surface convert(Uint32 pixel_format);
 	void blit(Surface &dst, const Rect *srcrect, Rect *dstrect);
 	void blitScaled(Surface &dst, const Rect *srcrect, Rect *dstrect);
 	void fillRect(const Rect *rect, const Color &color);
+	bool setClipRect(const Rect *rect);
+	void getClipRect(Rect *rect);
 
 	void lock();
 	void unlock();
+	bool getMustLock();
 	void setRLE(bool flag);
 	void setManaged(bool flag);
+	bool getManaged();
 
 	Surface& operator=(Surface &&surface);
 	operator bool();
 	PixelView operator[](int index);
-	PixelView operator()(int row, int col);
+	PixelView operator()(int col, int row);
 };
 
 } // namespace sw

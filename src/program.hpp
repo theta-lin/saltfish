@@ -9,10 +9,12 @@
 #include "font.hpp"
 #include "event.hpp"
 #include "ui.hpp"
+#include "game.hpp"
+#include "editor.hpp"
 
 namespace fs = std::filesystem;
 Menu makeMenuDefault(const doubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &exeDir);
-void drawBackground(sw::Surface &surface, const sw::Rect &rect);
+void drawBackground(sw::Surface &surface);
 
 class Program;
 
@@ -63,12 +65,11 @@ public:
 class EditorState : public ProgramState
 {
 private:
-	sw::Surface line1;
+	Editor editor;
 
 public:
 	EditorState(Program &program);
 	std::unique_ptr<ProgramState> handleEvent(const sw::Event &event) override;
-	void update() override;
 };
 
 class ExitState : public ProgramState
@@ -85,6 +86,9 @@ private:
 	Log &logger;
 	const fs::path &exeDir;
 	sw::Surface &surface;
+
+	Game game;
+
 	std::unique_ptr<ProgramState> state;
 
 public:
@@ -96,7 +100,7 @@ public:
 	Log& getLog();
 	sw::Surface& getSurface();
 	const fs::path& getExeDir();
-	UI& getUI();
+	Game& getGame();
 };
 
 #endif // ifndef PROGRAM_HPP

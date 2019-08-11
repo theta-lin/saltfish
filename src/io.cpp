@@ -118,11 +118,11 @@ void deserial(double &value, std::vector<std::byte> &buffer, std::size_t &index)
 	memcpy(&value, &ivalue, sizeof(value));
 }
 
-std::list<std::string> tokenize(std::string_view data)
+Tokens tokenize(std::string_view data)
 {
 	static const std::array<char, 1> operators{'='};
 
-	std::list<std::string> out;
+	Tokens out;
 	bool quoted{false};
 	bool escape{false};
 	bool next{true};

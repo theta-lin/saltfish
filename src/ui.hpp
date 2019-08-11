@@ -40,11 +40,28 @@ public:
 class DrawableWidget : public Widget
 {
 private:
-	std::function<void(sw::Surface&, const sw::Rect&)> onDraw;
+	std::function<void(sw::Surface&)> onDraw;
 
 public:
-	DrawableWidget(const doubleRect &dimension, std::function<void(sw::Surface&, const sw::Rect&)> onDraw);
+	DrawableWidget(const doubleRect &dimension, std::function<void(sw::Surface&)> onDraw);
 	void draw(sw::Surface &surface) override;
+};
+
+class TextBar : public Widget
+{
+private:
+	std::string text;
+	std::filesystem::path fontPath;
+	sw::Font font;
+	sw::ColorPair color;
+
+public:
+	static constexpr double fontScale{0.75};
+
+	TextBar(const doubleRect &dimension, const sw::ColorPair &color, std::filesystem::path fontPath);
+	void reInit(int wScreen, int hScreen) override;
+	void draw(sw::Surface &surface) override;
+	std::string& getText();
 };
 
 class Menu final : public Widget
@@ -99,9 +116,9 @@ public:
 	static constexpr int end{-2};
 
 	Menu(const doubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &selectedColor, const sw::ColorPair &disabledNormalColor, const sw::ColorPair &disabledSelectedColor, const std::filesystem::path &fontPath);
-	void reInit(int wScreen, int hScreen) override final;
-	void handleEvent(const sw::Event &event) override final;
-	void draw(sw::Surface &surface) override final;
+	void reInit(int wScreen, int hScreen) override;
+	void handleEvent(const sw::Event &event) override;
+	void draw(sw::Surface &surface) override;
 	void add(const Item &item, int index = -2);
 	void remove(int index = -2);
 };
@@ -109,12 +126,12 @@ public:
 class UI
 {
 private:
-	sw::Surface &surface;
+	sw::Surface *surface;
 	std::list<Widget*> widgets;
 
 public:
 	UI(sw::Surface &surface);
-	void reInit();
+	void reInit(sw::Surface &surface);
 	sw::Surface& getSurface();
 	void update();
 	void handleEvent(const sw::Event &event);
