@@ -16,9 +16,12 @@
 #include "program.hpp"
 #include "event.hpp"
 #include "game.hpp"
+#include "timer.hpp"
 
 int main(int argc, char *argv[])
 {
+	// check hardware compatibility for double float
+	// note that there ARE hardware that doesn't support this
 	static_assert(sizeof(double) == 8, "Requires size of double to be 8");
 	static_assert(std::numeric_limits<double>::is_iec559, "Requires IEEE 559 for double");
 	static_assert(std::numeric_limits<double>::has_infinity, "Requires infinity for double");
@@ -62,11 +65,6 @@ int main(int argc, char *argv[])
 	namespace fs = std::filesystem;
 	fs::path exeDir{fs::current_path() / fs::path{argv[0]}.parent_path()};
 
-	//Game game{logger, exeDir};
-	//game.loadLevel("test.lvl");
-	//game.print();
-	//return 0;
-
 	try
 	{
 		if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -101,6 +99,7 @@ int main(int argc, char *argv[])
 		Program program{logger, exeDir, window.getSurface()};
 
 		sw::Event event;
+		// main loop
 		while(!program.isExited())
 		{
 			while (SDL_PollEvent(&event))
