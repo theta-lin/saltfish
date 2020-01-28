@@ -13,5 +13,5 @@ using Event = SDL_Event;
 
 } // namespace sw
 
-#endif // EVENT_HPP
+#endif // ifndef EVENT_HPP
 

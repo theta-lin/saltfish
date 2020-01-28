@@ -32,5 +32,5 @@ public:
 
 } // namespace sw
 
-#endif // ifndef VIDEO_HPP
+#endif // ifndef WINDOW_HPP
 

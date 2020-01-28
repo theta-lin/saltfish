@@ -41,5 +41,5 @@ public:
 
 } // namespace sw
 
-#endif // PIXELS_HPP
+#endif // ifndef PIXELS_HPP
 
