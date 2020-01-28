@@ -22,9 +22,7 @@ void Window::init(const std::string &title, const Config &config)
 	config.get("window.width", width);
 	config.get("window.height", height);
 
-	logger.lock();
-	logger.GET(Log::info) << "Initialize video mode: " << width << 'x' << height << std::endl;
-	logger.unlock();
+	WRITE_LOG(logger, Log::info, "Initialize video mode: " << width << 'x' << height << std::endl);
 
 	window = SDL_CreateWindow(title.c_str() , SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
 	if (!window)
@@ -46,9 +44,7 @@ void Window::init(const std::string &title, const Config &config)
 
 void Window::cleanup()
 {
-	logger.lock();
-	logger.GET(Log::info) << "Cleanup video" << std::endl;
-	logger.unlock();
+	WRITE_LOG(logger, Log::info, "Cleanup video" << std::endl);
 
 	if (!window)
 		throw std::runtime_error{"Window::cleanup() failed: window is nullptr"};

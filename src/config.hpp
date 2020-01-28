@@ -33,11 +33,9 @@ public:
 		std::ifstream inFile{fileName};
 		if (!inFile)
 		{
-			logger.lock();
-			logger.GET(Log::error)
-				<< "Config::loadFromFile() failed: unable to open \""
-				<< fileName << "\"" << std::endl;
-			logger.unlock();
+			WRITE_LOG(logger, Log::error,
+			          "Config::loadFromFile() failed: unable to open \""
+			       << fileName << "\"" << std::endl);
 			return false;
 		}
 
@@ -54,11 +52,9 @@ public:
 			}
 			else if (tokens.size() != 3)
 			{
-				logger.lock();
-				logger.GET(Log::warning)
-					<< "Config::loadFromFile() failed at line " << lineCount
-					<< ": wrong number of tokens" << std::endl;
-				logger.unlock();
+				WRITE_LOG(logger, Log::warning,
+				          "Config::loadFromFile() failed at line " << lineCount
+				       << ": wrong number of tokens" << std::endl);
 				continue;
 			}
 
@@ -70,11 +66,9 @@ public:
 			const std::string &value{*it};
 			if (op != "=")
 			{
-				logger.lock();
-				logger.GET(Log::warning)
-					<< "Config::loadFromFile() failed at line " << lineCount
-				    << ": wrong operator" << std::endl;
-				logger.unlock();
+				WRITE_LOG(logger, Log::warning,
+				          "Config::loadFromFile() failed at line " << lineCount
+				       << ": wrong operator" << std::endl);
 				continue;
 			}
 
@@ -96,17 +90,17 @@ public:
 		}
 		catch (std::out_of_range &exception)
 		{
-			logger.GET(Log::warning)
-				<< "Config::get(): key \"" << key << "\" does not exist" << std::endl;
+			WRITE_LOG(logger, Log::warning,
+			          "Config::get(): key \"" << key << "\" does not exist" << std::endl);
 			return false;
 		}
 
 		valueStream >> target;
 		if (valueStream.fail())
 		{
-			logger.GET(Log::warning)
-				<< "Config::get() failed to access \"" << key
-				<< "\" as \"" << typeid(T).name() << "\"" << std::endl;
+			WRITE_LOG(logger, Log::warning,
+			          "Config::get() failed to access \"" << key
+			       << "\" as \"" << typeid(T).name() << "\"" << std::endl);
 			return false;
 		}
 

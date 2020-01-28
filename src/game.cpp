@@ -11,9 +11,7 @@ bool Game::loadLevel(const std::string &levelName)
 	std::ifstream ifs{levelPath, std::ios::binary | std::ios::ate};
 	if (!ifs)
 	{
-		logger.lock();
-		logger.GET(Log::warning) << "Game::loadLevel() failed: Cannot open file \"" << levelPath.string() << '\"' << std::endl;
-		logger.unlock();
+		WRITE_LOG(logger, Log::warning, "Game::loadLevel() failed: Cannot open file \"" << levelPath.string() << '\"' << std::endl);
 		return false;
 	}
 
@@ -22,18 +20,14 @@ bool Game::loadLevel(const std::string &levelName)
 	auto size{static_cast<std::size_t>(end - ifs.tellg())};
 	if (size == 0)
 	{
-		logger.lock();
-		logger.GET(Log::warning) << "Game::loadLevel() failed: File \"" << levelPath.string() << "\" is empty" << std::endl;
-		logger.unlock();
+		WRITE_LOG(logger, Log::warning, "Game::loadLevel() failed: File \"" << levelPath.string() << "\" is empty" << std::endl);
 		return false;
 	}
 
 	std::vector<std::byte> buffer(size);
 	if (!ifs.read(reinterpret_cast<char*>(buffer.data()), buffer.size()))
 	{
-		logger.lock();
-		logger.GET(Log::warning) << "Game::loadLevel() failed: Failed to read from file \"" << levelPath.string() << '\"' << std::endl;
-		logger.unlock();
+		WRITE_LOG(logger, Log::warning, "Game::loadLevel() failed: Failed to read from file \"" << levelPath.string() << '\"' << std::endl);
 		return false;
 	}
 
@@ -69,15 +63,11 @@ bool Game::loadLevel(const std::string &levelName)
 	}
 	catch (std::out_of_range &exception)
 	{
-		logger.lock();
-		logger.GET(Log::warning) << "Game::loadLevel() failed: Caught std::out_of_range: " << exception.what() << "; when parsing file \"" << levelPath.string() << '\"' << std::endl;
-		logger.unlock();
+		WRITE_LOG(logger, Log::warning, "Game::loadLevel() failed: Caught std::out_of_range: " << exception.what() << "; when parsing file \"" << levelPath.string() << '\"' << std::endl);
 		return false;
 	}
 
-	logger.lock();
-	logger.GET(Log::info) << "Game::loadLevel(): successfully loaded \"" << levelPath.string() << '\"' << std::endl;
-	logger.unlock();
+	WRITE_LOG(logger, Log::info, "Game::loadLevel(): successfully loaded \"" << levelPath.string() << '\"' << std::endl);
 
 	return true;
 }
@@ -108,9 +98,7 @@ bool Game::saveLevel(const std::string &levelName)
 	{
 		if (!std::filesystem::create_directory(exeDir / "level"))
 		{
-			logger.lock();
-			logger.GET(Log::warning) << "Game::saveLevel() failed: Cannot create directory \"" << std::filesystem::path(exeDir / "level").string() << '\"' << std::endl;
-			logger.unlock();
+			WRITE_LOG(logger, Log::warning, "Game::saveLevel() failed: Cannot create directory \"" << std::filesystem::path(exeDir / "level").string() << '\"' << std::endl);
 		}
 	}
 
@@ -118,12 +106,11 @@ bool Game::saveLevel(const std::string &levelName)
 	std::ofstream ofs{levelPath, std::ios::binary};
 	if (!ofs)
 	{
-		logger.lock();
-		logger.GET(Log::warning) << "Game::saveLevel() failed: Cannot open file \"" << levelPath.string() << '\"' << std::endl;
-		logger.unlock();
+		WRITE_LOG(logger, Log::warning, "Game::saveLevel() failed: Cannot open file \"" << levelPath.string() << '\"' << std::endl);
 		return false;
 	}
 
+	// TODO: Use exceptions
 	if (!ofs.write(reinterpret_cast<char*>(header.data()), header.size()))
 		goto writeFail;
 	if (!ofs.write(reinterpret_cast<char*>(items.data()), items.size()))
@@ -131,15 +118,11 @@ bool Game::saveLevel(const std::string &levelName)
 	if (!ofs.write(reinterpret_cast<char*>(directory.data()), directory.size()))
 		goto writeFail;
 
-	logger.lock();
-	logger.GET(Log::info) << "Game::saveLevel(): successfully saved \"" << levelPath.string() << '\"' << std::endl;
-	logger.unlock();
+	WRITE_LOG(logger, Log::info, "Game::saveLevel(): successfully saved \"" << levelPath.string() << '\"' << std::endl);
 	return true;
 
 writeFail:
-	logger.lock();
-	logger.GET(Log::warning) << "Game::saveLevel() failed: Failed write to file \"" << levelPath.string() << '\"' << std::endl;
-	logger.unlock();
+	WRITE_LOG(logger, Log::warning, "Game::saveLevel() failed: Failed write to file \"" << levelPath.string() << '\"' << std::endl);
 	return false;
 }
 
@@ -222,27 +205,5 @@ bool Game::removeLine(uint16_t v0, uint16_t v1)
 	}
 
 	return false;
-}
-
-void Game::useTestData()
-{
-	vertices.push_back({1.0, 1.0});
-	vertices.push_back({2.01, 3.001});
-	vertices.push_back({999999.0, 999.01});
-	lines.push_back({0, 2});
-	lines.push_back({1, 0});
-	lines.push_back({2, 1});
-}
-
-void Game::print()
-{
-	logger.lock();
-	logger.GET(Log::debug) << "Vertices:" << std::endl;
-	for (const Vertex &vertex : vertices)
-		logger.GET(Log::debug) << '\t' << '(' << vertex[0] << ',' << vertex[1] << ')' << std::endl;
-	logger.GET(Log::debug) << "Lines:" << std::endl;
-	for (const Line &line : lines)
-		logger.GET(Log::debug) << '\t' << '(' << line.v0 << ',' << line.v1 << ')' << std::endl;
-	logger.unlock();
 }
 

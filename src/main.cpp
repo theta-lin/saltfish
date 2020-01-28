@@ -30,36 +30,34 @@ int main(int argc, char *argv[])
 	Log logger{Log::debug};
 	logger.bind(std::clog);
 
-	logger.lock();
-	logger.GET(Log::info) << "Started program" << std::endl;
+	WRITE_LOG(logger, Log::info, "Started program" << std::endl);
 
 	SDL_version SDLCompiled;
 	SDL_VERSION(&SDLCompiled);
-	logger.GET(Log::info) << "SDL compiled Version: "
-		<< static_cast<int>(SDLCompiled.major) << '.'
-		<< static_cast<int>(SDLCompiled.minor) << '.'
-		<< static_cast<int>(SDLCompiled.patch) << std::endl;
+	WRITE_LOG(logger, Log::info, "SDL compiled Version: "
+	       << static_cast<int>(SDLCompiled.major) << '.'
+	       << static_cast<int>(SDLCompiled.minor) << '.'
+	       << static_cast<int>(SDLCompiled.patch) << std::endl);
 
 	SDL_version SDLLinked;
 	SDL_GetVersion(&SDLLinked);
-		logger.GET(Log::info) << "SDL linked Version: "
-		<< static_cast<int>(SDLLinked.major) << '.'
-		<< static_cast<int>(SDLLinked.minor) << '.'
-		<< static_cast<int>(SDLLinked.patch) << std::endl;
+	WRITE_LOG(logger, Log::info, "SDL linked Version: "
+	       << static_cast<int>(SDLLinked.major) << '.'
+	       << static_cast<int>(SDLLinked.minor) << '.'
+	       << static_cast<int>(SDLLinked.patch) << std::endl);
 
 	SDL_version TTFCompiled;
 	SDL_TTF_VERSION(&TTFCompiled);
-	logger.GET(Log::info) << "SDL_ttf compiled Version: "
-		<< static_cast<int>(TTFCompiled.major) << '.'
-		<< static_cast<int>(TTFCompiled.minor) << '.'
-		<< static_cast<int>(TTFCompiled.patch) << std::endl;
+	WRITE_LOG(logger, Log::info, "SDL_ttf compiled Version: "
+	       << static_cast<int>(TTFCompiled.major) << '.'
+	       << static_cast<int>(TTFCompiled.minor) << '.'
+	       << static_cast<int>(TTFCompiled.patch) << std::endl);
 
 	const SDL_version *TTFLinked{TTF_Linked_Version()};
-	logger.GET(Log::info) << "SDL_ttf linked Version: "
-		<< static_cast<int>(TTFLinked->major) << '.'
-		<< static_cast<int>(TTFLinked->minor) << '.'
-		<< static_cast<int>(TTFLinked->patch) << std::endl;
-	logger.unlock();
+	WRITE_LOG(logger, Log::info, "SDL_ttf linked Version: "
+	       << static_cast<int>(TTFLinked->major) << '.'
+	       << static_cast<int>(TTFLinked->minor) << '.'
+	       << static_cast<int>(TTFLinked->patch) << std::endl);
 
 	assert(argc != 0);
 	namespace fs = std::filesystem;
@@ -75,9 +73,7 @@ int main(int argc, char *argv[])
 		}
 		if (std::atexit(SDL_Quit) != 0)
 			throw std::runtime_error{"Registration of SDL_Quit() failed"};
-		logger.lock();
-		logger.GET(Log::info) << "Initialized SDL" << std::endl;
-		logger.unlock();
+		WRITE_LOG(logger, Log::info, "Initialized SDL" << std::endl);
 
 		if (TTF_Init() == -1)
 		{
@@ -87,9 +83,7 @@ int main(int argc, char *argv[])
 		}
 		if (std::atexit(TTF_Quit) != 0)
 			throw std::runtime_error{"Registration of TTF_Quit() failed"};
-		logger.lock();
-		logger.GET(Log::info) << "Initialized SDL_ttf" << std::endl;
-		logger.unlock();
+		WRITE_LOG(logger, Log::info, "Initialized SDL_ttf" << std::endl);
 
 		Config config{logger};
 		if (!config.loadFromFile(exeDir / "saltfish.conf"))
@@ -110,16 +104,12 @@ int main(int argc, char *argv[])
 	}
 	catch(const std::runtime_error &exception)
 	{
-		logger.lock();
-		logger.GET(Log::error) << "Caught std::runtime_error: " << exception.what() << std::endl;
-		logger.unlock();
+		WRITE_LOG(logger, Log::error, "Caught std::runtime_error: " << exception.what() << std::endl);
 		return 1;
 	}
 	catch(...)
 	{
-		logger.lock();
-		logger.GET(Log::error) << "Caught Unknown Exception" << std::endl;
-		logger.unlock();
+		WRITE_LOG(logger, Log::error, "Caught Unknown Exception" << std::endl);
 		return 1;
 	}
 

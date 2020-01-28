@@ -54,10 +54,6 @@ public:
 	bool addLine(const Line &line);
 	bool removeVertex(uint16_t index);
 	bool removeLine(uint16_t v0, uint16_t v1);
-
-	/* debug functions */
-	void useTestData();
-	void print();
 };
 
 #endif // ifndef GAME_HPP

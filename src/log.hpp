@@ -81,10 +81,17 @@ public:
 
 /*
  * An easy macro wrapper for Log::get(),
- * inserts current file name and line number.
+ * inserts current file name and line number,
+ * also HANDLES LOCKING,
+ * MESSAGE should be connected with << operator.
  */
-#define GET(LEVEL)\
-		get(LEVEL, std::filesystem::path{__FILE__}.filename(), __LINE__)
+#define WRITE_LOG(LOGGER, LEVEL, MESSAGE) \
+		( \
+			(LOGGER.lock()), \
+			(LOGGER.get(LEVEL, std::filesystem::path{__FILE__}.filename(), __LINE__) << MESSAGE), \
+			(LOGGER.unlock()) \
+		)
+
 
 #endif // ifndef LOG_HPP
 
