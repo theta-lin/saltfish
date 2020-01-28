@@ -13,7 +13,7 @@
 class Editor
 {
 private:
-	Game &game;
+	Level &level;
 	UI &ui;
 	sw::Font font;
 	DrawableWidget screen;

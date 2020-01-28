@@ -3,24 +3,24 @@
 void Editor::update(sw::Surface &surface)
 {
 	surface.fillRect(nullptr, {0, 0, 0, 255});
-	for (const Game::Line &line : game.getLines())
+	for (const Level::Line &line : level.getLines())
 	{
-		Line lineDraw{game.getVertices()[line.v0], game.getVertices()[line.v1]};
+		Line lineDraw{level.getVertices()[line.v0], level.getVertices()[line.v1]};
 		lineDraw.draw({255, 255, 255, 255}, surface);
 	}
 
-	for (size_t i{0}; i < game.getVertices().size(); ++i)
+	for (size_t i{0}; i < level.getVertices().size(); ++i)
 	{
 		sw::Surface indexRender{font.renderBlended(std::to_string(i), {255, 130, 0, 255})};
-		sw::Rect dstRect{static_cast<int>(std::roundl(game.getVertices()[i][0])),
-				         static_cast<int>(std::roundl(game.getVertices()[i][1])),
+		sw::Rect dstRect{static_cast<int>(std::roundl(level.getVertices()[i][0])),
+				         static_cast<int>(std::roundl(level.getVertices()[i][1])),
 		                 0, 0};
 		indexRender.blit(surface, nullptr, &dstRect);
 	}
 }
 
 Editor::Editor(Game &game, UI &ui, const std::filesystem::path &exeDir, std::function<void()> onExit)
-	: game{game}, ui{ui}, font{exeDir / "font" / "DejaVuSansMono.ttf", 20},
+	: level{game.getLevel()}, ui{ui}, font{exeDir / "font" / "DejaVuSansMono.ttf", 20},
 	screen{{0.0, 0.0, 1.0, 0.9}, [this](sw::Surface &surface){ this->update(surface); }},
 	input{{0.0, 0.9, 1.0, 0.05}, {{255, 255, 255, 255}, {40, 40, 40, 255}}, exeDir / "font" / "DejaVuSansMono.ttf"},
 	message{{0.0, 0.95, 1.0, 0.05}, {{255, 130, 0, 255}, {40, 40, 40, 255}}, exeDir / "font" / "DejaVuSansMono.ttf"},
@@ -67,36 +67,36 @@ void Editor::handleEvent(const sw::Event &event)
 						}
 						else if (*it == "n" || *it == "new")
 						{
-							game.free();
+							level.free();
 						}
 						else if (*it == "o" || *it == "open")
 						{
 							std::string levelName;
 							convertTokens(++it, tokens.end(), levelName);
-							game.free();
-							if (!game.loadLevel(levelName))
-								message.getText() = "Error: game.loadLevel() failed";
+							level.free();
+							if (!level.loadLevel(levelName))
+								message.getText() = "Error: level.loadLevel() failed";
 						}
 						else if (*it == "s" || *it == "save")
 						{
 							std::string levelName;
 							convertTokens(++it, tokens.end(), levelName);
-							if (!game.saveLevel(levelName))
-								message.getText() = "Error: game.saveLevel() failed";
+							if (!level.saveLevel(levelName))
+								message.getText() = "Error: level.saveLevel() failed";
 						}
 						else if (*it == "v" || *it == "vertex")
 						{
-							Game::Vertex vertex;
+							Level::Vertex vertex;
 							convertTokens(++it, tokens.end(), vertex[0], vertex[1]);
-							if (!game.addVertex(vertex))
-								message.getText() = "Error: game.addVertex() failed";
+							if (!level.addVertex(vertex))
+								message.getText() = "Error: level.addVertex() failed";
 						}
 						else if (*it == "l" || *it == "line")
 						{
-							Game::Line line;
+							Level::Line line;
 							convertTokens(++it, tokens.end(), line.v0, line.v1);
-							if (!game.addLine(line))
-								message.getText() = "Error: game.addLine() failed";
+							if (!level.addLine(line))
+								message.getText() = "Error: level.addLine() failed";
 						}
 						else if (*it == "d" || *it == "delete")
 						{
@@ -107,15 +107,15 @@ void Editor::handleEvent(const sw::Event &event)
 								{
 									uint16_t index;
 									convertTokens(++it, tokens.end(), index);
-									if (!game.removeVertex(index))
-										message.getText() = "Error: game.removeVertex() failed";
+									if (!level.removeVertex(index))
+										message.getText() = "Error: level.removeVertex() failed";
 								}
 								else if (*it == "l" || *it == "line")
 								{
 									uint16_t v0, v1;
 									convertTokens(++it, tokens.end(), v0, v1);
-									if (!game.removeLine(v0, v1))
-										message.getText() = "Error: game.removeLine() failed";
+									if (!level.removeLine(v0, v1))
+										message.getText() = "Error: level.removeLine() failed";
 								}
 								else
 								{

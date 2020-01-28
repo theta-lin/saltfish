@@ -1,57 +1,18 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+#ifndef LEVEL_HPP
+#define LEVEL_HPP
 
-#include "io.hpp"
-#include "log.hpp"
-#include "vec.hpp"
-#include <fstream>
+#include "level.hpp"
 
-/*
- * TODO: RENAME Game -> Level
- * A class to store objects of a game level,
- * which can be loaded/saved to a compact file format.
- *
- * Level File Format:
- * Header    | uint32_t offset to directory
- *
- * Items     | vertices
- *           | lines
- *           | ...
- *
- * Directory | uint32_t offset to the end of the item
- */
 class Game
 {
-public:
-	using Vertex = Vec2d;
-
-	// A line is defined by two vertices
-	struct Line
-	{
-		uint16_t v0;
-		uint16_t v1;
-	};
-
 private:
 	Log &logger;
-	const std::filesystem::path &exeDir;
-
-	std::vector<Vertex> vertices;
-	std::list<Line> lines;
+	Level level;
 
 public:
 	Game(Log &logger, const std::filesystem::path &exeDir);
-	bool loadLevel(const std::string &levelName);
-	bool saveLevel(const std::string &levelName);
-	void free();
-
-	const std::vector<Vertex>& getVertices();
-	const std::list<Line>& getLines();
-	bool addVertex(const Vertex &vertex);
-	bool addLine(const Line &line);
-	bool removeVertex(uint16_t index);
-	bool removeLine(uint16_t v0, uint16_t v1);
+	Level& getLevel();
 };
 
-#endif // ifndef GAME_HPP
+#endif // ifndef LEVEL_HPP
 
