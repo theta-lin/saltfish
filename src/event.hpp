@@ -3,9 +3,12 @@
 
 #include <SDL.h>
 
-namespace sw
+namespace sw // = Sdl Wrapper
 {
 
+/*
+ * Unify the code style
+ */
 using Event = SDL_Event;
 
 } // namespace sw

@@ -5,6 +5,9 @@
 #include "vec.hpp"
 #include "surface.hpp"
 
+/*
+ * The 2D line primative using Bresenham's Line Algorithm
+ */
 class Line
 {
 public:

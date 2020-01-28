@@ -12,6 +12,10 @@
 #include <mutex>
 #include <filesystem>
 
+/*
+ * A dummy buffer to pipe into if you want to have no output
+ * similar to /dev/null, etc.
+ */
 class NullBuffer : public std::streambuf
 {
 public:
@@ -19,6 +23,10 @@ public:
 	int_type overflow(int_type ch) final;
 };
 
+/*
+ * A buffer that forwards output to multiple ostream,
+ * so you can output to file and stdout at the same time.
+ */
 class ComposedBuffer : public std::streambuf
 {
 private:
@@ -31,6 +39,11 @@ public:
 	int_type overflow(int_type ch) final;
 };
 
+/*
+ * A class that allows logging to multiple ostream,
+ * also suppress low-importance message according to Log Level,
+ * append information like Log Level, file name, line number, and current time.
+ */
 class Log
 {
 public:
@@ -48,7 +61,7 @@ private:
 	std::ostream out;
 	static NullBuffer nullBuffer;
 	static std::ostream nullOut;
-	Level level;
+	Level level; // suppress message with Level number GREATER than this
 	static std::array<std::string, 4> levelToString;
 
 public:
@@ -60,15 +73,15 @@ public:
 	void bind(std::ostream &observer);
 
 	/*
-	 * Return a std::ostream to directly log to
+	 * Return a std::ostream to directly write into
 	 * RECOMMAND USING THE MACRO WRAPPER
 	 */
 	std::ostream& get(Level level, std::string fileName, int lineNumber);
 };
 
 /*
- * An easy macro wrapper for Log::get()
- * Inserts current function name
+ * An easy macro wrapper for Log::get(),
+ * inserts current file name and line number.
  */
 #define GET(LEVEL)\
 		get(LEVEL, std::filesystem::path{__FILE__}.filename(), __LINE__)

@@ -1,3 +1,10 @@
+/*
+ * This file contains utilities dealing with serialization and tokens,
+ * to be used in situations such as load/save to a file,
+ * read/write from/to network packets,
+ * and parse game console/map editor commands.
+ */
+
 #ifndef IO_HPP
 #define IO_HPP
 
@@ -13,6 +20,9 @@
 #include <array>
 #include <stdexcept>
 
+/*
+ * serialize/deserialize basic types into/from bytes
+ */
 void serial(uint16_t value, std::vector<std::byte> &buffer);
 void serial(int16_t value, std::vector<std::byte> &buffer);
 void serial(uint32_t value, std::vector<std::byte> &buffer);
@@ -30,8 +40,17 @@ void deserial(int64_t &value, std::vector<std::byte> &buffer, std::size_t &index
 void deserial(double &value, std::vector<std::byte> &buffer, std::size_t &index);
 
 using Tokens = std::list<std::string>;
+
+/*
+ * convert a space-seperated string into tokens
+ * NOTE: Each "Operator" is one token, and double-quoted "" part count as one token (a string).
+ *       Backslash "\" can be used for escaping inside a double-quoted token.
+ */
 Tokens tokenize(std::string_view data);
 
+/*
+ * convert tokens to various number of variables in various types
+ */
 template<typename T>
 void convertTokens(Tokens::iterator begin, Tokens::iterator end, T &current)
 {

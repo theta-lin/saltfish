@@ -9,9 +9,12 @@
 #include "config.hpp"
 #include "surface.hpp"
 
-namespace sw
+namespace sw // Sdl Wrapper
 {
 
+/*
+ * A simple wrapper for SDL_Window
+ */
 class Window
 {
 private:

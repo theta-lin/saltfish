@@ -1,3 +1,7 @@
+/*
+ * This file defines wrapper to pixel-level data and function from SDL
+ */
+
 #ifndef PIXELS_HPP
 #define PIXELS_HPP
 
@@ -5,14 +9,19 @@
 #include <utility>
 #include <SDL.h>
 
-namespace sw
+namespace sw // Sdl Wrapper
 {
 
+/*
+ * Unify the code style
+ */
 using Rect = SDL_Rect;
 using Color = SDL_Color;
 using ColorPair = std::pair<sw::Color, sw::Color>;
 
-
+/*
+ * A wrapper(reference) for a pixel on SDL_Surface
+ */
 class PixelView
 {
 private:

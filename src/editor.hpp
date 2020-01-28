@@ -7,6 +7,10 @@
 #include "line.hpp"
 #include "io.hpp"
 
+/*
+ * Quick hacks to display a map editor
+ * TODO: REPLACE ALL OF THESE WITH A PROPER EDITOR
+ */
 class Editor
 {
 private:

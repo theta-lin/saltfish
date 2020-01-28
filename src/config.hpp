@@ -8,6 +8,10 @@
 #include "log.hpp"
 #include "io.hpp"
 
+/*
+ * A simple database to load configuration from files,
+ * store them as strings, and convert them to appropriate types.
+ */
 class Config
 {
 private:

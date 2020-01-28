@@ -1,6 +1,6 @@
 #include "window.hpp"
 
-namespace sw
+namespace sw // Sdl Wrapper
 {
 
 Window::Window(Log &logger, const std::string &title, const Config &config) : logger{logger}, window{nullptr}

@@ -1,3 +1,7 @@
+/*
+ * This file contains basic widgets for user interface
+ */
+
 #ifndef UI_HPP
 #define UI_HPP
 
@@ -32,11 +36,18 @@ protected:
 
 public:
 	doubleRect getDimension();
+
+	// This method is exposed to allow a Widget to be reinitialized in situations such as resize
 	virtual void reInit(int wScreen, int hScreen);
+
+	// NOTE: A widget may have no associated event handler
 	virtual void handleEvent([[maybe_unused]] const sw::Event &event);
 	virtual void draw(sw::Surface &surface) = 0;
 };
 
+/*
+ * Implementing a simple canvas to draw anything
+ */
 class DrawableWidget : public Widget
 {
 private:
@@ -47,6 +58,10 @@ public:
 	void draw(sw::Surface &surface) override;
 };
 
+/*
+ * A bar to display one line of text
+ * Can be used for displaying entered command like command mode in Vim
+ */
 class TextBar : public Widget
 {
 private:
@@ -64,6 +79,9 @@ public:
 	std::string& getText();
 };
 
+/*
+ * A simple menu with a list of Items like buttons
+ */
 class Menu final : public Widget
 {
 public:
@@ -74,10 +92,11 @@ public:
 		std::function<void()> onActivation;
 		bool isEnable;
 
+		// Prevent rendering multiple times
 		sw::Surface cache;
 
 	public:
-		static constexpr double fontScale{0.75};
+		static constexpr double fontScale{0.75}; // fontHeight / itemHeight
 
 		Item(std::string_view text, std::function<void()> onActivation, bool isEnable = true);
 		Item(const Item &item);
@@ -87,7 +106,7 @@ public:
 		bool getEnable();
 		void update(int width, int height, const sw::ColorPair &color, sw::Font &font);
 		sw::Surface& getCache();
-		void activate();
+		void activate(); // An Item can activated by the parent Menu
 	};
 
 private:
@@ -104,8 +123,8 @@ private:
 	int selected;
 	static constexpr int noSelected{-1};
 
-	int itemHeightReal;
-	int gapHeightReal;
+	int itemHeightReal; // Height of each Item
+	int gapHeightReal; // Gap between Items
 	sw::Font font;
 
 	void updateItem(int index);
@@ -119,8 +138,8 @@ public:
 	void reInit(int wScreen, int hScreen) override;
 	void handleEvent(const sw::Event &event) override;
 	void draw(sw::Surface &surface) override;
-	void add(const Item &item, int index = -2);
-	void remove(int index = -2);
+	void add(const Item &item, int index = end);
+	void remove(int index = end);
 };
 
 class UI

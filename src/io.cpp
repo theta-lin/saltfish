@@ -55,6 +55,7 @@ void serial(int64_t value, std::vector<std::byte> &buffer)
 void serial(double value, std::vector<std::byte> &buffer)
 {
 	uint64_t ivalue;
+	// NOTE: due to strict-aliasing rule, this is the ONLY WAY to do it CORRECTLY
 	memcpy(&ivalue, &value, sizeof(value));
 	serial(ivalue, buffer);
 }
@@ -115,6 +116,7 @@ void deserial(double &value, std::vector<std::byte> &buffer, std::size_t &index)
 {
 	uint64_t ivalue;
 	deserial(ivalue, buffer, index);
+	// NOTE: due to strict-aliasing rule, this is the ONLY WAY to do it CORRECTLY
 	memcpy(&value, &ivalue, sizeof(value));
 }
 

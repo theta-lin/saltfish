@@ -1,13 +1,3 @@
-/* Level File Format:
- * Header    | uint32_t offset to directory
- *
- * Items     | vertices
- *           | lines
- *           | ...
- *
- * Directory | uint32_t offset to the end of the item
- */
-
 #ifndef GAME_HPP
 #define GAME_HPP
 
@@ -19,10 +9,26 @@
 #include "io.hpp"
 #include "vec.hpp"
 
+/*
+ * TODO: RENAME Game -> Level
+ * A class to store objects of a game level,
+ * which can be loaded/saved to a compact file format.
+ *
+ * Level File Format:
+ * Header    | uint32_t offset to directory
+ *
+ * Items     | vertices
+ *           | lines
+ *           | ...
+ *
+ * Directory | uint32_t offset to the end of the item
+ */
 class Game
 {
 public:
 	using Vertex = Vec2d;
+
+	// A line is defined by two vertices
 	struct Line
 	{
 		uint16_t v0;
@@ -49,6 +55,7 @@ public:
 	bool removeVertex(uint16_t index);
 	bool removeLine(uint16_t v0, uint16_t v1);
 
+	/* debug functions */
 	void useTestData();
 	void print();
 };

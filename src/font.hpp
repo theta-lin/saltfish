@@ -9,7 +9,10 @@
 #include <SDL_ttf.h>
 #include "surface.hpp"
 
-namespace sw
+/*
+ * A simple wrapper for TTF_Font
+ */
+namespace sw // = Sdl Wrapper
 {
 
 class Font

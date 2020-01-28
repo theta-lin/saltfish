@@ -1,6 +1,6 @@
 #include "surface.hpp"
 
-namespace sw
+namespace sw // Sdl_Wrapper
 {
 
 Surface::Surface(SDL_Surface *surface) : surface{surface}, managed{true}

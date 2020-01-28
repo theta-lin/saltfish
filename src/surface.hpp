@@ -6,9 +6,12 @@
 #include <SDL.h>
 #include "pixels.hpp"
 
-namespace sw
+namespace sw // Sdl Wrapper
 {
 
+/*
+ * A simple wrapper for SDL_Surface
+ */
 class Surface
 {
 private:
