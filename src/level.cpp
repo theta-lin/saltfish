@@ -192,19 +192,12 @@ bool Level::removeVertex(uint16_t index)
 
 bool Level::removeLine(uint16_t v0, uint16_t v1)
 {
-	for (auto it{lines.begin()}; it != lines.end(); )
-	{
-		if (it->v0 == v0 && it->v1 == v1)
-		{
-			lines.erase(it);
-			return true;
-		}
-		else
-		{
-			++it;
-		}
-	}
+	std::size_t prev{lines.size()};
+	lines.remove_if([v0, v1](const Line &line)
+	                {
+						return (line.v0 == v0 && line.v1 == v1) || (line.v0 == v1 && line.v1 == v0);
+					});
 
-	return false;
+	return lines.size() < prev;
 }
 
