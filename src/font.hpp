@@ -1,13 +1,9 @@
 #ifndef FONT_HPP
 #define FONT_HPP
 
-#include <filesystem>
-#include <stdexcept>
-#include <string>
-#include <string_view>
-#include <utility>
-#include <SDL_ttf.h>
 #include "surface.hpp"
+#include <SDL_ttf.h>
+#include <filesystem>
 
 /*
  * A simple wrapper for TTF_Font

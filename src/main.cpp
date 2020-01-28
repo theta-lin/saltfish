@@ -1,22 +1,5 @@
-#include <cstdlib>
-#include <cstring>
-#include <cassert>
-#include <iostream>
-#include <stdexcept>
-#include <filesystem>
-#include <limits>
-#include <SDL.h>
-#include <SDL_ttf.h>
-#include "log.hpp"
-#include "config.hpp"
-#include "window.hpp"
-#include "surface.hpp"
-#include "font.hpp"
-#include "line.hpp"
 #include "program.hpp"
-#include "event.hpp"
-#include "game.hpp"
-#include "timer.hpp"
+#include <iostream>
 
 int main(int argc, char *argv[])
 {

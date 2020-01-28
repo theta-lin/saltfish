@@ -1,13 +1,10 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-#include <fstream>
-#include <string>
-#include <filesystem>
-#include <stdexcept>
-#include "log.hpp"
 #include "io.hpp"
+#include "log.hpp"
 #include "vec.hpp"
+#include <fstream>
 
 /*
  * TODO: RENAME Game -> Level

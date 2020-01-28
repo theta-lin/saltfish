@@ -1,12 +1,12 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
-#include <map>
-#include <string>
-#include <sstream>
-#include <fstream>
 #include "log.hpp"
 #include "io.hpp"
+#include <fstream>
+#include <map>
+#include <sstream>
+#include <string>
 
 /*
  * A simple database to load configuration from files,

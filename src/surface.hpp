@@ -1,9 +1,6 @@
 #ifndef SURFACE_HPP
 #define SURFACE_HPP
 
-#include <string>
-#include <stdexcept>
-#include <SDL.h>
 #include "pixels.hpp"
 
 namespace sw // Sdl Wrapper

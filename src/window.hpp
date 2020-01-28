@@ -1,13 +1,10 @@
 #ifndef VIDEO_HPP
 #define VIDEO_HPP
 
-#include <iostream>
-#include <string>
-#include <stdexcept>
-#include <SDL.h>
-#include "log.hpp"
 #include "config.hpp"
+#include "log.hpp"
 #include "surface.hpp"
+#include <SDL.h>
 
 namespace sw // Sdl Wrapper
 {

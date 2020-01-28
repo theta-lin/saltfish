@@ -5,16 +5,16 @@
 #ifndef PROGRAM_HPP
 #define PROGRAM_HPP
 
-#include <string>
-#include <memory>
-#include <filesystem>
+#include "editor.hpp"
+#include "event.hpp"
+#include "font.hpp"
+#include "game.hpp"
 #include "log.hpp"
 #include "surface.hpp"
-#include "font.hpp"
-#include "event.hpp"
 #include "ui.hpp"
-#include "game.hpp"
-#include "editor.hpp"
+#include <filesystem>
+#include <memory>
+#include <string>
 
 namespace fs = std::filesystem;
 

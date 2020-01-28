@@ -8,17 +8,17 @@
 #ifndef IO_HPP
 #define IO_HPP
 
-#include <cstdint>
-#include <cstring>
-#include <cctype>
-#include <cstddef>
+#include <array>
+#include <list>
 #include <string>
 #include <string_view>
 #include <sstream>
 #include <vector>
-#include <list>
-#include <array>
 #include <stdexcept>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <cctype>
 
 /*
  * serialize/deserialize basic types into/from bytes

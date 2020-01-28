@@ -1,9 +1,8 @@
 #ifndef LINE_HPP
 #define LINE_HPP
 
-#include <cmath>
-#include "vec.hpp"
 #include "surface.hpp"
+#include "vec.hpp"
 
 /*
  * The 2D line primative using Bresenham's Line Algorithm

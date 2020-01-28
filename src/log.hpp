@@ -1,16 +1,16 @@
 #ifndef LOG_HPP
 #define LOG_HPP
 
-#include <ostream>
 #include <algorithm>
-#include <vector>
-#include <functional>
-#include <string>
 #include <array>
 #include <chrono>
+#include <filesystem>
+#include <functional>
 #include <iomanip>
 #include <mutex>
-#include <filesystem>
+#include <ostream>
+#include <string>
+#include <vector>
 
 /*
  * A dummy buffer to pipe into if you want to have no output

@@ -1,11 +1,10 @@
 #ifndef EDITOR_HPP
 #define EDITOR_HPP
 
-#include <cmath>
 #include "game.hpp"
-#include "ui.hpp"
-#include "line.hpp"
 #include "io.hpp"
+#include "line.hpp"
+#include "ui.hpp"
 
 /*
  * Quick hacks to display a map editor

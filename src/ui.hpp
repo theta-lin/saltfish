@@ -5,19 +5,10 @@
 #ifndef UI_HPP
 #define UI_HPP
 
-#include <cstddef>
-#include <string>
-#include <string_view>
-#include <list>
-#include <utility>
-#include <stdexcept>
-#include <SDL.h>
-#include "log.hpp"
-#include "config.hpp"
-#include "surface.hpp"
-#include "font.hpp"
-#include "window.hpp"
 #include "event.hpp"
+#include "font.hpp"
+#include "surface.hpp"
+#include "window.hpp"
 
 struct doubleRect
 {

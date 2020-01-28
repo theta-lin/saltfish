@@ -5,9 +5,9 @@
 #ifndef PIXELS_HPP
 #define PIXELS_HPP
 
+#include <SDL.h>
 #include <stdexcept>
 #include <utility>
-#include <SDL.h>
 
 namespace sw // Sdl Wrapper
 {

@@ -1,12 +1,12 @@
 #ifndef VEC_HPP
 #define VEC_HPP
 
-#include <cstddef>
-#include <cmath>
-#include <cstring>
-#include <cassert>
-#include <iostream>
 #include <initializer_list>
+#include <ostream>
+#include <cassert>
+#include <cmath>
+#include <cstddef>
+#include <cstring>
 
 template<std::size_t size, typename T>
 class Vec
