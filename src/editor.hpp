@@ -3,7 +3,7 @@
 
 #include "game.hpp"
 #include "io.hpp"
-#include "line.hpp"
+#include "line_shape.hpp"
 #include "ui.hpp"
 
 /*

@@ -5,7 +5,7 @@ void Editor::update(sw::Surface &surface)
 	surface.fillRect(nullptr, {0, 0, 0, 255});
 	for (const Level::Line &line : level.getLines())
 	{
-		Line lineDraw{level.getVertices()[line.v0], level.getVertices()[line.v1]};
+		LineShape lineDraw{level.getVertices()[line.v0], level.getVertices()[line.v1]};
 		lineDraw.draw({255, 255, 255, 255}, surface);
 	}
 
