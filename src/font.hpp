@@ -5,12 +5,13 @@
 #include <SDL_ttf.h>
 #include <filesystem>
 
-/*
- * A simple wrapper for TTF_Font
- */
 namespace sw // = Sdl Wrapper
 {
 
+/*
+ * A simple wrapper for TTF_Font
+ * NOTE: Due to the specification of SDL, const object will be unavailable
+ */
 class Font
 {
 private:

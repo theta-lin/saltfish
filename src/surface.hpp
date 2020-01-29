@@ -8,6 +8,7 @@ namespace sw // Sdl Wrapper
 
 /*
  * A simple wrapper for SDL_Surface
+ * NOTE: Due to the specification of SDL, const object will be unavailable
  */
 class Surface
 {
