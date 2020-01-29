@@ -26,7 +26,7 @@ private:
 public:
 	Editor(Game &game, UI &ui, const std::filesystem::path &exeDir, std::function<void()> onExit);
 	~Editor();
-	void handleEvent(const sw::Event &event);
+	void handleEvent(const SDL_Event &event);
 };
 
 #endif // ifndef EDITOR_HPP

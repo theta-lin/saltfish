@@ -6,11 +6,7 @@
 #define PROGRAM_HPP
 
 #include "editor.hpp"
-#include "event.hpp"
-#include "font.hpp"
 #include "game.hpp"
-#include "log.hpp"
-#include "surface.hpp"
 #include "ui.hpp"
 #include <filesystem>
 #include <memory>
@@ -30,7 +26,7 @@ protected:
 
 public:
 	virtual ~ProgramState();
-	virtual std::unique_ptr<ProgramState> handleEvent(const sw::Event &event);
+	virtual std::unique_ptr<ProgramState> handleEvent(const SDL_Event &event);
 	virtual void update();
 };
 
@@ -51,7 +47,7 @@ private:
 
 public:
 	GameState(Program &program);
-	std::unique_ptr<ProgramState> handleEvent(const sw::Event &event) override;
+	std::unique_ptr<ProgramState> handleEvent(const SDL_Event &event) override;
 	void update() override;
 };
 
@@ -71,14 +67,14 @@ private:
 
 public:
 	EditorState(Program &program);
-	std::unique_ptr<ProgramState> handleEvent(const sw::Event &event) override;
+	std::unique_ptr<ProgramState> handleEvent(const SDL_Event &event) override;
 };
 
 class ExitState : public ProgramState
 {
 public:
 	ExitState(Program &program);
-	std::unique_ptr<ProgramState> handleEvent([[maybe_unused]] const sw::Event &event) override;
+	std::unique_ptr<ProgramState> handleEvent([[maybe_unused]] const SDL_Event &event) override;
 	void update() override;
 };
 
@@ -95,7 +91,7 @@ private:
 
 public:
 	Program(Log &logger, const fs::path &exeDir, sw::Surface &surface);
-	void handleEvent(const sw::Event &event);
+	void handleEvent(const SDL_Event &event);
 	void update();
 	bool isExited();
 

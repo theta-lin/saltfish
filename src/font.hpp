@@ -27,7 +27,7 @@ public:
 	void close();
 	operator bool();
 
-	// always use utf-8 text when rendering font
+	// Always use utf-8 text when rendering font
 	Surface renderSolid(std::string_view text, const Color &fg);
 	Surface renderShaded(std::string_view text, const ColorPair &color);
 	Surface renderBlended(std::string_view text, const Color &fg);

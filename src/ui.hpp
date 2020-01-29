@@ -6,9 +6,7 @@
 #ifndef UI_HPP
 #define UI_HPP
 
-#include "event.hpp"
 #include "font.hpp"
-#include "surface.hpp"
 #include "window.hpp"
 
 struct doubleRect
@@ -33,7 +31,7 @@ public:
 	virtual void reInit(int wScreen, int hScreen);
 
 	// NOTE: A widget may have no associated event handler
-	virtual void handleEvent([[maybe_unused]] const sw::Event &event);
+	virtual void handleEvent([[maybe_unused]] const SDL_Event &event);
 	virtual void draw(sw::Surface &surface) = 0;
 };
 
@@ -128,7 +126,7 @@ public:
 
 	Menu(const doubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &selectedColor, const sw::ColorPair &disabledNormalColor, const sw::ColorPair &disabledSelectedColor, const std::filesystem::path &fontPath);
 	void reInit(int wScreen, int hScreen) override;
-	void handleEvent(const sw::Event &event) override;
+	void handleEvent(const SDL_Event &event) override;
 	void draw(sw::Surface &surface) override;
 	void add(const Item &item, int index = end);
 	void remove(int index = end);
@@ -145,7 +143,7 @@ public:
 	void reInit(sw::Surface &surface);
 	sw::Surface& getSurface();
 	void update();
-	void handleEvent(const sw::Event &event);
+	void handleEvent(const SDL_Event &event);
 	void add(Widget &widget);
 	void remove(Widget &widget);
 };

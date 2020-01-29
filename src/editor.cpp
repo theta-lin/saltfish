@@ -38,7 +38,7 @@ Editor::~Editor()
 	ui.remove(message);
 }
 
-void Editor::handleEvent(const sw::Event &event)
+void Editor::handleEvent(const SDL_Event &event)
 {
 	switch (event.type)
 	{

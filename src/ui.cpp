@@ -17,7 +17,7 @@ doubleRect Widget::getDimension()
 	return dimension;
 }
 
-void Widget::handleEvent([[maybe_unused]] const sw::Event &event)
+void Widget::handleEvent([[maybe_unused]] const SDL_Event &event)
 {
 }
 
@@ -180,7 +180,7 @@ void Menu::reInit(int wScreen, int hScreen)
 		updateItem(i);
 }
 
-void Menu::handleEvent(const sw::Event &event)
+void Menu::handleEvent(const SDL_Event &event)
 {
 	if (items.size() == 0)
 		return;
@@ -326,7 +326,7 @@ void UI::update()
 		widget->draw(*surface);
 }
 
-void UI::handleEvent(const sw::Event &event)
+void UI::handleEvent(const SDL_Event &event)
 {
 	for (auto &widget : widgets)
 		widget->handleEvent(event);

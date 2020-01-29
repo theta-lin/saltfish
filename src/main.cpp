@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 		sw::Window window{logger, "saltfish", config};
 		Program program{logger, exeDir, window.getSurface()};
 
-		sw::Event event;
+		SDL_Event event;
 		// main loop
 		while(!program.isExited())
 		{

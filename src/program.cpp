@@ -8,7 +8,7 @@ ProgramState::~ProgramState()
 {
 }
 
-std::unique_ptr<ProgramState> ProgramState::handleEvent(const sw::Event &event)
+std::unique_ptr<ProgramState> ProgramState::handleEvent(const SDL_Event &event)
 {
 	if (event.type == SDL_QUIT)
 		next = std::make_unique<ExitState>(program);
@@ -38,7 +38,7 @@ GameState::GameState(Program &program) : ProgramState{program}
 	line1 = font.renderBlended("ESC: Pause Game", {255, 255, 255, 255});
 }
 
-std::unique_ptr<ProgramState> GameState::handleEvent(const sw::Event &event)
+std::unique_ptr<ProgramState> GameState::handleEvent(const SDL_Event &event)
 {
 	switch (event.type)
 	{
@@ -83,7 +83,7 @@ EditorState::EditorState(Program &program) : ProgramState{program}, editor{progr
 {
 }
 
-std::unique_ptr<ProgramState> EditorState::handleEvent(const sw::Event &event)
+std::unique_ptr<ProgramState> EditorState::handleEvent(const SDL_Event &event)
 {
 	editor.handleEvent(event);
 	return ProgramState::handleEvent(event);
@@ -93,7 +93,7 @@ ExitState::ExitState(Program &program) : ProgramState{program}
 {
 }
 
-std::unique_ptr<ProgramState> ExitState::handleEvent([[maybe_unused]] const sw::Event &event)
+std::unique_ptr<ProgramState> ExitState::handleEvent([[maybe_unused]] const SDL_Event &event)
 {
 	return nullptr;
 }
@@ -108,7 +108,7 @@ Program::Program(Log &logger, const fs::path &exeDir, sw::Surface &surface)
 {
 }
 
-void Program::handleEvent(const sw::Event &event)
+void Program::handleEvent(const SDL_Event &event)
 {
 	std::unique_ptr<ProgramState> nextState{state->handleEvent(event)};
 	if (nextState)
