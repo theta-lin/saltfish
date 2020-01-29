@@ -5,29 +5,24 @@ Level::Level(Log &logger, const std::filesystem::path &exeDir)
 {
 }
 
-bool Level::loadLevel(const std::string &levelName)
+bool Level::load(const std::string &levelName)
 {
 	auto levelPath{exeDir / "level" / levelName};
 	std::ifstream ifs{levelPath, std::ios::binary | std::ios::ate};
 	if (!ifs)
 	{
-		WRITE_LOG(logger, Log::warning, "Level::loadLevel() failed: Cannot open file \"" << levelPath.string() << '\"' << std::endl);
+		WRITE_LOG(logger, Log::warning, "Level::load() failed: Cannot open file \"" << levelPath.string() << '\"' << std::endl);
 		return false;
 	}
 
 	auto end{ifs.tellg()};
 	ifs.seekg(0, std::ios::beg);
 	auto size{static_cast<std::size_t>(end - ifs.tellg())};
-	if (size == 0)
-	{
-		WRITE_LOG(logger, Log::warning, "Level::loadLevel() failed: File \"" << levelPath.string() << "\" is empty" << std::endl);
-		return false;
-	}
 
 	std::vector<std::byte> buffer(size);
 	if (!ifs.read(reinterpret_cast<char*>(buffer.data()), buffer.size()))
 	{
-		WRITE_LOG(logger, Log::warning, "Level::loadLevel() failed: Failed to read from file \"" << levelPath.string() << '\"' << std::endl);
+		WRITE_LOG(logger, Log::warning, "Level::load() failed: Failed to read from file \"" << levelPath.string() << '\"' << std::endl);
 		return false;
 	}
 
@@ -63,42 +58,43 @@ bool Level::loadLevel(const std::string &levelName)
 	}
 	catch (std::out_of_range &exception)
 	{
-		WRITE_LOG(logger, Log::warning, "Level::loadLevel() failed: Caught std::out_of_range: " << exception.what() << "; when parsing file \"" << levelPath.string() << '\"' << std::endl);
+		WRITE_LOG(logger, Log::warning, "Level::load() failed: std::out_of_range during deserialization: " << exception.what() << "; when parsing file \"" << levelPath.string() << '\"' << std::endl);
 		return false;
 	}
 
-	WRITE_LOG(logger, Log::info, "Level::loadLevel(): successfully loaded \"" << levelPath.string() << '\"' << std::endl);
+	WRITE_LOG(logger, Log::info, "Level::load(): successfully loaded \"" << levelPath.string() << '\"' << std::endl);
 
 	return true;
 }
 
-bool Level::saveLevel(const std::string &levelName)
+bool Level::save(const std::string &levelName)
 {
 	std::vector<std::byte> header;
 	std::vector<std::byte> items;
 	std::vector<std::byte> directory;
+	const std::size_t headerSize{sizeof(uint32_t)};
 
 	for (const Vertex &vertex : vertices)
 	{
 		serial(vertex[0], items);
 		serial(vertex[1], items);
 	}
-	serial(static_cast<uint32_t>(4 + items.size()), directory);
+	serial(static_cast<uint32_t>(headerSize + items.size()), directory);
 
 	for (const Line &line : lines)
 	{
 		serial(line.v0, items);
 		serial(line.v1, items);
 	}
-	serial(static_cast<uint32_t>(4 + items.size()), directory);
+	serial(static_cast<uint32_t>(headerSize + items.size()), directory);
 
-	serial(static_cast<uint32_t>(4 + items.size()), header);
+	serial(static_cast<uint32_t>(headerSize + items.size()), header);
 
 	if (!std::filesystem::exists(exeDir / "level"))
 	{
 		if (!std::filesystem::create_directory(exeDir / "level"))
 		{
-			WRITE_LOG(logger, Log::warning, "Level::saveLevel() failed: Cannot create directory \"" << std::filesystem::path(exeDir / "level").string() << '\"' << std::endl);
+			WRITE_LOG(logger, Log::warning, "Level::save() failed: Cannot create directory \"" << std::filesystem::path(exeDir / "level").string() << '\"' << std::endl);
 		}
 	}
 
@@ -106,11 +102,11 @@ bool Level::saveLevel(const std::string &levelName)
 	std::ofstream ofs{levelPath, std::ios::binary};
 	if (!ofs)
 	{
-		WRITE_LOG(logger, Log::warning, "Level::saveLevel() failed: Cannot open file \"" << levelPath.string() << '\"' << std::endl);
+		WRITE_LOG(logger, Log::warning, "Level::save() failed: Cannot open file \"" << levelPath.string() << '\"' << std::endl);
 		return false;
 	}
 
-	// TODO: Use exceptions
+	// stream library does have exceptions, but I think it is better to do it this way
 	if (!ofs.write(reinterpret_cast<char*>(header.data()), header.size()))
 		goto writeFail;
 	if (!ofs.write(reinterpret_cast<char*>(items.data()), items.size()))
@@ -118,11 +114,11 @@ bool Level::saveLevel(const std::string &levelName)
 	if (!ofs.write(reinterpret_cast<char*>(directory.data()), directory.size()))
 		goto writeFail;
 
-	WRITE_LOG(logger, Log::info, "Level::saveLevel(): successfully saved \"" << levelPath.string() << '\"' << std::endl);
+	WRITE_LOG(logger, Log::info, "Level::save(): Successfully saved \"" << levelPath.string() << '\"' << std::endl);
 	return true;
 
 writeFail:
-	WRITE_LOG(logger, Log::warning, "Level::saveLevel() failed: Failed write to file \"" << levelPath.string() << '\"' << std::endl);
+	WRITE_LOG(logger, Log::warning, "Level::save() failed: Failed write to file \"" << levelPath.string() << '\"' << std::endl);
 	return false;
 }
 
@@ -166,7 +162,6 @@ bool Level::addLine(const Line &line)
 	return true;
 }
 
-// TODO: refactor the loops
 bool Level::removeVertex(uint16_t index)
 {
 	if (index < 0 || index >= vertices.size())

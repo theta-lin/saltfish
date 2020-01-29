@@ -74,15 +74,15 @@ void Editor::handleEvent(const sw::Event &event)
 							std::string levelName;
 							convertTokens(++it, tokens.end(), levelName);
 							level.free();
-							if (!level.loadLevel(levelName))
-								message.getText() = "Error: level.loadLevel() failed";
+							if (!level.load(levelName))
+								message.getText() = "Error: level.load() failed";
 						}
 						else if (*it == "s" || *it == "save")
 						{
 							std::string levelName;
 							convertTokens(++it, tokens.end(), levelName);
-							if (!level.saveLevel(levelName))
-								message.getText() = "Error: level.saveLevel() failed";
+							if (!level.save(levelName))
+								message.getText() = "Error: level.save() failed";
 						}
 						else if (*it == "v" || *it == "vertex")
 						{
