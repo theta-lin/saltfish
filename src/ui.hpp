@@ -1,5 +1,6 @@
 /*
- * This file contains basic widgets for user interface
+ * This file contains basic widgets for user interface,
+ * and default style of the widgets.
  */
 
 #ifndef UI_HPP
@@ -62,7 +63,7 @@ private:
 	sw::ColorPair color;
 
 public:
-	static constexpr double fontScale{0.75};
+	static constexpr double fontScale{0.75}; // fontHeight / itemHeight
 
 	TextBar(const doubleRect &dimension, const sw::ColorPair &color, std::filesystem::path fontPath);
 	void reInit(int wScreen, int hScreen) override;
@@ -148,6 +149,21 @@ public:
 	void add(Widget &widget);
 	void remove(Widget &widget);
 };
+
+/*
+ * Helper to construct a menu in default style
+ * The style can be changed at the near-bottom part of ui.cpp.
+ */
+
+/*
+ * MainMenu is the menu displayed after the game started, and after pausing the game.
+ */
+Menu makeMainMenu(const doubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &fontDir);
+
+/*
+ * Temporary background for testing
+ */
+void drawBackground(sw::Surface &surface);
 
 #endif // ifndef UI_HPP
 

@@ -18,12 +18,6 @@
 
 namespace fs = std::filesystem;
 
-/*
- * Helper to construct a menu in default style
- */
-Menu makeMenuDefault(const doubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &exeDir);
-void drawBackground(sw::Surface &surface);
-
 class Program;
 
 class ProgramState

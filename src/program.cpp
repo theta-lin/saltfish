@@ -1,29 +1,5 @@
 #include "program.hpp"
 
-Menu makeMenuDefault(const doubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &exeDir)
-{
-	return {dimension, itemHeight, gapHeight,
-		{{255, 255, 255, 255}, {80, 80, 80, 240}},
-		{{255, 130, 0, 255}, {255, 255, 255, 240}},
-		{{80, 80, 80, 255}, {120, 120, 120, 240}},
-		{{120, 120, 120, 255}, {180, 180, 180, 240}},
-		exeDir / "font" / "Terminus-Bold.ttf"};
-}
-
-void drawBackground(sw::Surface &surface)
-{
-	for (int col{0}; col < surface.getWidth(); ++col)
-	{
-		for (int row{0}; row < surface.getHeight(); ++row)
-		{
-			if ((col / 150 + row / 150) & 1)
-				surface(col, row) = {0, 230, 50, 255};
-			else
-				surface(col, row) = {50, 150, 0, 255};
-		}
-	}
-}
-
 ProgramState::ProgramState(Program &program) : program{program}, ui{program.getSurface()}, next{nullptr}
 {
 }
@@ -46,7 +22,7 @@ void ProgramState::update()
 	ui.update();
 }
 
-MenuState::MenuState(Program &program) : ProgramState{program}, background{{0.0, 0.0, 1.0, 1.0}, drawBackground}, menu{makeMenuDefault({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.getExeDir())}
+MenuState::MenuState(Program &program) : ProgramState{program}, background{{0.0, 0.0, 1.0, 1.0}, drawBackground}, menu{makeMainMenu({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.getExeDir() / "font")}
 {
 	ui.add(background);
 	menu.add({"Start Game", [this](){ this->next = std::make_unique<GameState>(this->program); }});
@@ -93,7 +69,7 @@ void GameState::update()
 }
 
 PauseState::PauseState(Program &program)
-	: ProgramState{program}, menu{makeMenuDefault({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.getExeDir())}
+	: ProgramState{program}, menu{makeMainMenu({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.getExeDir() / "font")}
 {
 
 	menu.add({"Back To Game", [this](){ this->next = std::make_unique<GameState>(this->program); }});

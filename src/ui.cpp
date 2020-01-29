@@ -96,6 +96,8 @@ void Menu::Item::update(int width, int height, const sw::ColorPair &color, sw::F
 		cache.free();
 	cache.create(width, height);
 	cache.fillRect(nullptr, color.second);
+
+	// The space is for preventing the text from sticking to the left
 	sw::Surface textRender{font.renderBlended(' ' + text, color.first)};
 	sw::Rect dstRect{0, static_cast<int>(height * (1.0 - fontScale) * 0.5), 0, 0};
 	textRender.blit(cache, nullptr, &dstRect);
@@ -339,5 +341,31 @@ void UI::add(Widget &widget)
 void UI::remove(Widget &widget)
 {
 	widgets.remove(&widget);
+}
+
+static const sw::ColorPair normalColor{{255, 255, 255, 255}, {80, 80, 80, 240}};
+static const sw::ColorPair selectedColor{{255, 130, 0, 255}, {255, 255, 255, 240}};
+static const sw::ColorPair disabledNormalColor{{80, 80, 80, 255}, {120, 120, 120, 240}};
+static const sw::ColorPair disabledSelectedColor{{120, 120, 120, 255}, {180, 180, 180, 240}};
+
+Menu makeMainMenu(const doubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &fontDir)
+{
+	return {dimension, itemHeight, gapHeight,
+	        normalColor, selectedColor, disabledNormalColor, disabledSelectedColor,
+	        fontDir / "Terminus-Bold.ttf"};
+}
+
+void drawBackground(sw::Surface &surface)
+{
+	for (int col{0}; col < surface.getWidth(); ++col)
+	{
+		for (int row{0}; row < surface.getHeight(); ++row)
+		{
+			if ((col / 150 + row / 150) & 1)
+				surface(col, row) = {0, 230, 50, 255};
+			else
+				surface(col, row) = {50, 150, 0, 255};
+		}
+	}
 }
 
