@@ -1,5 +1,5 @@
-#ifndef LEVEL_HPP
-#define LEVEL_HPP
+#ifndef GAME_HPP
+#define GAME_HPP
 
 #include "level.hpp"
 
@@ -14,5 +14,5 @@ public:
 	Level& getLevel();
 };
 
-#endif // ifndef LEVEL_HPP
+#endif // ifndef GAME_HPP
 

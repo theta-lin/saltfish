@@ -1,5 +1,5 @@
-#ifndef LINE_HPP
-#define LINE_HPP
+#ifndef LINE_SHAPE_HPP
+#define LINE_SHAPE_HPP
 
 #include "surface.hpp"
 #include "vec.hpp"
@@ -24,5 +24,5 @@ public:
 	void draw(const sw::Color &color, sw::Surface &surface);
 };
 
-#endif // ifndef LINE_HPP
+#endif // ifndef LINE_SHAPE_HPP
 

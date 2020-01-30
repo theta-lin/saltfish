@@ -1,5 +1,5 @@
-#ifndef VIDEO_HPP
-#define VIDEO_HPP
+#ifndef WINDOW_HPP
+#define WINDOW_HPP
 
 #include "config.hpp"
 #include "log.hpp"

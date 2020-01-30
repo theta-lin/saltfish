@@ -1,5 +1,5 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+#ifndef LEVEL_HPP
+#define LEVEL_HPP
 
 #include "io.hpp"
 #include "log.hpp"
@@ -59,5 +59,5 @@ public:
 	bool removeLine(uint16_t v0, uint16_t v1);
 };
 
-#endif // ifndef GAME_HPP
+#endif // ifndef LEVEL_HPP
 
