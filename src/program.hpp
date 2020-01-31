@@ -1,5 +1,9 @@
 /*
- * This file specifies the main program state machine
+ * This file specifies the main program state machine,
+ * each state will return its next state by handleEvent().
+ * terminating the program is through the special ExitState.
+ * Each state should hook its UI widgets,
+ * all event (except the SDL_QUIT event) is handled by the UI,
  */
 
 #ifndef PROGRAM_HPP
@@ -26,6 +30,12 @@ protected:
 
 public:
 	virtual ~ProgramState();
+
+	/*
+	 * Return the next state after handling events,
+	 * nullptr if keep current state.
+	 */
+	// TODO: Remove virtual when GameState is completed
 	virtual std::unique_ptr<ProgramState> handleEvent(const SDL_Event &event);
 	virtual void update();
 };
@@ -33,13 +43,25 @@ public:
 class MenuState : public ProgramState
 {
 private:
-	DrawableWidget background;
+	/*
+	 * Temporary background for TESTING
+	 * TODO: Replace the background
+	 */
+	class Background: public Widget
+	{
+	public:
+		using Widget::Widget;
+		void draw(sw::Surface &surface) final;
+	};
+	Background background;
+
 	Menu menu;
 
 public:
 	MenuState(Program &program);
 };
 
+// TODO: Finish GameState (currently a placeholder)
 class GameState : public ProgramState
 {
 private:
@@ -63,6 +85,12 @@ public:
 class EditorState : public ProgramState
 {
 private:
+	const sw::Color textNormal{255, 255, 255, 255};
+	const sw::Color textHighlight{255, 130, 0, 255};
+	const sw::Color background{40, 40, 40, 255};
+
+	TextBar status;
+	TextBar message;
 	Editor editor;
 
 public:

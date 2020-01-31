@@ -1,6 +1,6 @@
 #include "ui.hpp"
 
-Widget::Widget(const doubleRect &dimension) : dimension{dimension}
+Widget::Widget(const DoubleRect &dimension) : dimension{dimension}
 {
 }
 
@@ -12,7 +12,7 @@ void Widget::reInit(int wScreen, int hScreen)
 	real.h = dimension.h * hScreen;
 }
 
-doubleRect Widget::getDimension()
+DoubleRect Widget::getDimension()
 {
 	return dimension;
 }
@@ -21,20 +21,7 @@ void Widget::handleEvent([[maybe_unused]] const SDL_Event &event)
 {
 }
 
-DrawableWidget::DrawableWidget(const doubleRect &dimension, std::function<void(sw::Surface&)> onDraw)
-	: Widget{dimension}, onDraw{onDraw}
-{
-}
-
-void DrawableWidget::draw(sw::Surface &surface)
-{
-	surface.setClipRect(&real);
-	if (onDraw)
-		onDraw(surface);
-	surface.setClipRect(nullptr);
-}
-
-TextBar::TextBar(const doubleRect &dimension, const sw::ColorPair &color, std::filesystem::path fontPath)
+TextBar::TextBar(const DoubleRect &dimension, const sw::ColorPair &color, const std::filesystem::path &fontPath)
 	: Widget{dimension}, fontPath{fontPath}, color{color}
 {
 }
@@ -150,11 +137,11 @@ int Menu::itemUnderCursor(int x, int y)
 
 	x -= real.x;
 	y -= real.y;
-	if (   x < 0 || y < 0
+	if (   x < 0      || y < 0
 		|| x > real.w || y >= static_cast<int>(items.size()) * (itemHeightReal + gapHeightReal))
 		return noSelected;
 
-	int index{y / (itemHeightReal + gapHeightReal)};
+	int index {y / (itemHeightReal + gapHeightReal)};
 	int offset{y % (itemHeightReal + gapHeightReal)};
 	if (offset <= itemHeightReal)
 		return index;
@@ -162,8 +149,11 @@ int Menu::itemUnderCursor(int x, int y)
 		return noSelected;
 }
 
-Menu::Menu(const doubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &selectedColor, const sw::ColorPair &disabledNormalColor, const sw::ColorPair &disabledSelectedColor, const std::filesystem::path &fontPath)
-	: Widget{dimension}, itemHeight{itemHeight}, gapHeight{gapHeight}, normalColor{normalColor}, selectedColor{selectedColor}, disabledNormalColor{disabledNormalColor}, disabledSelectedColor{disabledSelectedColor}, fontPath{fontPath}, selected{noSelected}
+Menu::Menu(const DoubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &selectedColor, const sw::ColorPair &disabledNormalColor, const sw::ColorPair &disabledSelectedColor, const std::filesystem::path &fontPath)
+	: Widget{dimension}, itemHeight{itemHeight}, gapHeight{gapHeight},
+	  normalColor{normalColor}, selectedColor{selectedColor},
+	  disabledNormalColor{disabledNormalColor}, disabledSelectedColor{disabledSelectedColor},
+	  fontPath{fontPath}, selected{noSelected}
 {
 }
 
@@ -171,7 +161,7 @@ void Menu::reInit(int wScreen, int hScreen)
 {
 	Widget::reInit(wScreen, hScreen);
 	itemHeightReal = static_cast<int>(itemHeight * hScreen);
-	gapHeightReal = static_cast<int>(gapHeight * hScreen);
+	gapHeightReal  = static_cast<int>(gapHeight * hScreen);
 
 	if (font) font.close();
 	font.open(fontPath, static_cast<int>(itemHeight * hScreen * Item::fontScale));
@@ -348,24 +338,10 @@ static const sw::ColorPair selectedColor{{255, 130, 0, 255}, {255, 255, 255, 240
 static const sw::ColorPair disabledNormalColor{{80, 80, 80, 255}, {120, 120, 120, 240}};
 static const sw::ColorPair disabledSelectedColor{{120, 120, 120, 255}, {180, 180, 180, 240}};
 
-Menu makeMainMenu(const doubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &fontDir)
+Menu makeMainMenu(const DoubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &fontDir)
 {
 	return {dimension, itemHeight, gapHeight,
 	        normalColor, selectedColor, disabledNormalColor, disabledSelectedColor,
 	        fontDir / "Terminus-Bold.ttf"};
-}
-
-void drawBackground(sw::Surface &surface)
-{
-	for (int col{0}; col < surface.getWidth(); ++col)
-	{
-		for (int row{0}; row < surface.getHeight(); ++row)
-		{
-			if ((col / 150 + row / 150) & 1)
-				surface(col, row) = {0, 230, 50, 255};
-			else
-				surface(col, row) = {50, 150, 0, 255};
-		}
-	}
 }
 

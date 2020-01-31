@@ -9,7 +9,11 @@
 #include "font.hpp"
 #include "window.hpp"
 
-struct doubleRect
+/*
+ * x, y: origin(left upper corner) coordinates
+ * w, h: width, height
+ */
+struct DoubleRect
 {
 	double x;
 	double y;
@@ -20,36 +24,28 @@ struct doubleRect
 class Widget
 {
 protected:
-	doubleRect dimension;
+	// Dimension proportional to each axis of screen
+	DoubleRect dimension;
+
+	// The REAL dimension ON SCREEN (in px)
 	sw::Rect real;
-	Widget(const doubleRect &dimension);
 
 public:
-	doubleRect getDimension();
+	Widget(const DoubleRect &dimension);
+	DoubleRect getDimension();
 
-	// This method is exposed to allow a Widget to be reinitialized in situations such as resize
+	// This method is exposed to allow a Widget to be reinitialized in events such as resizing
 	virtual void reInit(int wScreen, int hScreen);
 
 	// NOTE: A widget may have no associated event handler
 	virtual void handleEvent([[maybe_unused]] const SDL_Event &event);
+
+	// NOTE: It's up to the IMPLEMENTER to USE real FOR CLIPPING
 	virtual void draw(sw::Surface &surface) = 0;
 };
 
 /*
- * Implementing a simple canvas to draw anything
- */
-class DrawableWidget : public Widget
-{
-private:
-	std::function<void(sw::Surface&)> onDraw;
-
-public:
-	DrawableWidget(const doubleRect &dimension, std::function<void(sw::Surface&)> onDraw);
-	void draw(sw::Surface &surface) override;
-};
-
-/*
- * A bar to display one line of text
+ * A bar to display ONE line of text
  * Can be used for displaying entered command like command mode in Vim
  */
 class TextBar : public Widget
@@ -63,14 +59,15 @@ private:
 public:
 	static constexpr double fontScale{0.75}; // fontHeight / itemHeight
 
-	TextBar(const doubleRect &dimension, const sw::ColorPair &color, std::filesystem::path fontPath);
+	TextBar(const DoubleRect &dimension, const sw::ColorPair &color, const std::filesystem::path &fontPath);
 	void reInit(int wScreen, int hScreen) override;
 	void draw(sw::Surface &surface) override;
 	std::string& getText();
 };
 
 /*
- * A simple menu with a list of Items like buttons
+ * A simple menu with a list of Items like buttons,
+ * can be navigated with mouse and arrow keys.
  */
 class Menu final : public Widget
 {
@@ -83,6 +80,7 @@ public:
 		bool isEnable;
 
 		// Prevent rendering multiple times
+		// Only updated when the "selected" status change
 		sw::Surface cache;
 
 	public:
@@ -121,10 +119,13 @@ private:
 	int itemUnderCursor(int x, int y);
 
 public:
-	static constexpr int begin{-1};
-	static constexpr int end{-2};
+	enum SpecialPosition
+	{
+		begin = -1,
+		end = -2
+	};
 
-	Menu(const doubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &selectedColor, const sw::ColorPair &disabledNormalColor, const sw::ColorPair &disabledSelectedColor, const std::filesystem::path &fontPath);
+	Menu(const DoubleRect &dimension, double itemHeight, double gapHeight, const sw::ColorPair &normalColor, const sw::ColorPair &selectedColor, const sw::ColorPair &disabledNormalColor, const sw::ColorPair &disabledSelectedColor, const std::filesystem::path &fontPath);
 	void reInit(int wScreen, int hScreen) override;
 	void handleEvent(const SDL_Event &event) override;
 	void draw(sw::Surface &surface) override;
@@ -132,6 +133,10 @@ public:
 	void remove(int index = end);
 };
 
+/*
+ * Simple UI engine,
+ * forwards event and update each widget.
+ */
 class UI
 {
 private:
@@ -156,12 +161,7 @@ public:
 /*
  * MainMenu is the menu displayed after the game started, and after pausing the game.
  */
-Menu makeMainMenu(const doubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &fontDir);
-
-/*
- * Temporary background for testing
- */
-void drawBackground(sw::Surface &surface);
+Menu makeMainMenu(const DoubleRect &dimension, double itemHeight, double gapHeight, const std::filesystem::path &fontDir);
 
 #endif // ifndef UI_HPP
 

@@ -22,7 +22,21 @@ void ProgramState::update()
 	ui.update();
 }
 
-MenuState::MenuState(Program &program) : ProgramState{program}, background{{0.0, 0.0, 1.0, 1.0}, drawBackground}, menu{makeMainMenu({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.getExeDir() / "font")}
+void MenuState::Background::draw(sw::Surface &surface)
+{
+	for (int col{0}; col < real.w; ++col)
+	{
+		for (int row{0}; row < real.h; ++row)
+		{
+			if ((col / 150 + row / 150) & 1)
+				surface(col, row) = {0, 230, 50, 255};
+			else
+				surface(col, row) = {50, 150, 0, 255};
+		}
+	}
+}
+
+MenuState::MenuState(Program &program) : ProgramState{program}, background{{0.0, 0.0, 1.0, 1.0}}, menu{makeMainMenu({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.getExeDir() / "font")}
 {
 	ui.add(background);
 	menu.add({"Start Game", [this](){ this->next = std::make_unique<GameState>(this->program); }});
@@ -79,7 +93,10 @@ PauseState::PauseState(Program &program)
 	ui.add(menu);
 }
 
-EditorState::EditorState(Program &program) : ProgramState{program}, editor{program.getGame(), ui, program.getExeDir(), [this](){ this->next = std::make_unique<MenuState>(this->program); }}
+EditorState::EditorState(Program &program) : ProgramState{program},
+	status{{0.0, 0.9, 1.0, 0.05}, {textNormal, background}, program.getExeDir() / "font" / "DejaVuSansMono.ttf"},
+	message{{0.0, 0.95, 1.0, 0.05}, {textHighlight, background}, program.getExeDir() / "font" / "DejaVuSansMono.ttf"},
+	editor{{0.0, 0.0, 1.0, 0.9}, program.getGame(), status.getText(), message.getText(), program.getExeDir() / "font", [this](){ this->next = std::make_unique<MenuState>(this->program); }}
 {
 }
 
