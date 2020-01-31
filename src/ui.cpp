@@ -29,7 +29,8 @@ TextBar::TextBar(const DoubleRect &dimension, const sw::ColorPair &color, const 
 void TextBar::reInit(int wScreen, int hScreen)
 {
 	Widget::reInit(wScreen, hScreen);
-	if (font) font.close();
+	if (font)
+		font.close();
 	font.open(fontPath, static_cast<int>(real.h * fontScale));
 }
 
@@ -178,72 +179,71 @@ void Menu::handleEvent(const SDL_Event &event)
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:
+		switch (event.key.keysym.scancode)
 		{
-			switch (event.key.keysym.scancode)
+		case SDL_SCANCODE_DOWN:
+			if (selected == noSelected)
 			{
-			case SDL_SCANCODE_DOWN:
-				if (selected == noSelected)
-				{
-					selected = 0;
-					updateItem(selected);
-				}
-				else
-				{
-					int origin{selected};
-					++selected;
-					if (static_cast<std::size_t>(selected) == items.size())
-						selected = 0;
-					updateItem(origin);
-					updateItem(selected);
-				}
-				break;
-
-			case SDL_SCANCODE_UP:
-				if (selected == noSelected)
-				{
-					selected = 0;
-					updateItem(selected);
-				}
-				else
-				{
-					int origin{selected};
-					--selected;
-					if (selected == -1)
-						selected = static_cast<int>(items.size() - 1);
-					updateItem(origin);
-					updateItem(selected);
-				}
-				break;
-
-			case SDL_SCANCODE_RETURN:
-				if (selected == noSelected)
-				{
-					selected = 0;
-					updateItem(selected);
-				}
-				else
-				{
-					items[selected].activate();
-				}
-				break;
-
-			default:
-				break;
+				selected = 0;
+				updateItem(selected);
 			}
-		}
-
-	case SDL_MOUSEMOTION:
-		{
-			int index{itemUnderCursor(event.motion.x, event.motion.y)};
-			if (index != noSelected)
+			else
 			{
 				int origin{selected};
-				selected = index;
+				++selected;
+				if (static_cast<std::size_t>(selected) == items.size())
+					selected = 0;
 				updateItem(origin);
 				updateItem(selected);
 			}
+			break;
+
+		case SDL_SCANCODE_UP:
+			if (selected == noSelected)
+			{
+				selected = 0;
+				updateItem(selected);
+			}
+			else
+			{
+				int origin{selected};
+				--selected;
+				if (selected == -1)
+					selected = static_cast<int>(items.size() - 1);
+				updateItem(origin);
+				updateItem(selected);
+			}
+			break;
+
+		case SDL_SCANCODE_RETURN:
+			if (selected == noSelected)
+			{
+				selected = 0;
+				updateItem(selected);
+			}
+			else
+			{
+				items[selected].activate();
+			}
+			break;
+
+		default:
+			break;
 		}
 		break;
+
+	case SDL_MOUSEMOTION:
+	{
+		int index{itemUnderCursor(event.motion.x, event.motion.y)};
+		if (index != noSelected)
+		{
+			int origin{selected};
+			selected = index;
+			updateItem(origin);
+			updateItem(selected);
+		}
+		break;
+	}
 
 	case SDL_MOUSEBUTTONDOWN:
 		if (   event.button.button == SDL_BUTTON_LEFT
