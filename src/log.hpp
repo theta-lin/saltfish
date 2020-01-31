@@ -68,8 +68,6 @@ public:
 	Log(Level level);
 	void lock();
 	void unlock();
-	void setLevel(Level level);
-	Level getLevel();
 	void bind(std::ostream &observer);
 
 	/*

@@ -34,16 +34,6 @@ void Log::unlock()
 	mutex.unlock();
 }
 
-void Log::setLevel(Level level)
-{
-	this->level = level;
-}
-
-Log::Level Log::getLevel()
-{
-	return level;
-}
-
 void Log::bind(std::ostream &observer)
 {
 	buffer.add(observer.rdbuf());

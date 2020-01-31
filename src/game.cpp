@@ -5,8 +5,3 @@ Game::Game(Log &logger, const std::filesystem::path &exeDir)
 {
 }
 
-Level& Game::getLevel()
-{
-	return level;
-}
-

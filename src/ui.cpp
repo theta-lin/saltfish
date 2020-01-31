@@ -12,11 +12,6 @@ void Widget::reInit(int wScreen, int hScreen)
 	real.h = dimension.h * hScreen;
 }
 
-DoubleRect Widget::getDimension()
-{
-	return dimension;
-}
-
 void Widget::handleEvent([[maybe_unused]] const SDL_Event &event)
 {
 }
@@ -45,18 +40,13 @@ void TextBar::draw(sw::Surface &surface)
 	}
 }
 
-std::string& TextBar::getText()
-{
-	return text;
-}
-
-Menu::Item::Item(std::string_view text, std::function<void()> onActivation, bool isEnable)
-	: text{text}, onActivation{onActivation}, isEnable{isEnable}
+Menu::Item::Item(std::string_view text, std::function<void()> onActivation, bool enable)
+	: text{text}, onActivation{onActivation}, enable{enable}
 {
 }
 
 Menu::Item::Item(const Item &item)
-	: text{item.text}, onActivation{item.onActivation}, isEnable{item.isEnable}
+	: text{item.text}, onActivation{item.onActivation}, enable{item.enable}
 {
 }
 
@@ -64,18 +54,8 @@ Menu::Item& Menu::Item::operator=(const Menu::Item &item)
 {
 	text = item.text;
 	onActivation = item.onActivation;
-	isEnable = item.isEnable;
+	enable = item.enable;
 	return *this;
-}
-
-void Menu::Item::setEnable(bool isEnable)
-{
-	this->isEnable = isEnable;
-}
-
-bool Menu::Item::getEnable()
-{
-	return isEnable;
 }
 
 void Menu::Item::update(int width, int height, const sw::ColorPair &color, sw::Font &font)
@@ -91,14 +71,9 @@ void Menu::Item::update(int width, int height, const sw::ColorPair &color, sw::F
 	textRender.blit(cache, nullptr, &dstRect);
 }
 
-sw::Surface& Menu::Item::getCache()
-{
-	return cache;
-}
-
 void Menu::Item::activate()
 {
-	if (isEnable && onActivation)
+	if (enable && onActivation)
 		onActivation();
 }
 
@@ -109,7 +84,7 @@ void Menu::updateItem(int index)
 
 	if (index == selected)
 	{
-		if (items[index].getEnable())
+		if (items[index].enable)
 		{
 			items[index].update(real.w, itemHeightReal, selectedColor, font);
 		}
@@ -120,7 +95,7 @@ void Menu::updateItem(int index)
 	}
 	else
 	{
-		if (items[index].getEnable())
+		if (items[index].enable)
 		{
 			items[index].update(real.w, itemHeightReal, normalColor, font);
 		}
@@ -262,7 +237,7 @@ void Menu::draw(sw::Surface &surface)
 	sw::Rect current{real.x, real.y, 0, 0};
 	for (std::size_t i{0}; i < items.size(); ++i)
 	{
-		items[i].getCache().blit(surface, nullptr, &current);
+		items[i].cache.blit(surface, nullptr, &current);
 		current.y += itemHeightReal + gapHeightReal;
 	}
 }

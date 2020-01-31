@@ -109,12 +109,6 @@ public:
 class Program
 {
 private:
-	Log &logger;
-	const fs::path &exeDir;
-	sw::Surface &surface;
-
-	Game game;
-
 	std::unique_ptr<ProgramState> state;
 
 public:
@@ -123,10 +117,10 @@ public:
 	void update();
 	bool isExited();
 
-	Log& getLog();
-	sw::Surface& getSurface();
-	const fs::path& getExeDir();
-	Game& getGame();
+	Log &logger;
+	const fs::path &exeDir;
+	sw::Surface &surface;
+	Game game;
 };
 
 #endif // ifndef PROGRAM_HPP

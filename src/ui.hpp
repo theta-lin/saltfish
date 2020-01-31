@@ -24,15 +24,14 @@ struct DoubleRect
 class Widget
 {
 protected:
-	// Dimension proportional to each axis of screen
-	DoubleRect dimension;
-
 	// The REAL dimension ON SCREEN (in px)
 	sw::Rect real;
 
 public:
+	// Dimension proportional to each axis of screen
+	const DoubleRect dimension;
+
 	Widget(const DoubleRect &dimension);
-	DoubleRect getDimension();
 
 	// This method is exposed to allow a Widget to be reinitialized in events such as resizing
 	virtual void reInit(int wScreen, int hScreen);
@@ -51,7 +50,6 @@ public:
 class TextBar : public Widget
 {
 private:
-	std::string text;
 	std::filesystem::path fontPath;
 	sw::Font font;
 	sw::ColorPair color;
@@ -59,10 +57,11 @@ private:
 public:
 	static constexpr double fontScale{0.75}; // fontHeight / itemHeight
 
+	std::string text;
+
 	TextBar(const DoubleRect &dimension, const sw::ColorPair &color, const std::filesystem::path &fontPath);
 	void reInit(int wScreen, int hScreen) override;
 	void draw(sw::Surface &surface) override;
-	std::string& getText();
 };
 
 /*
@@ -77,23 +76,22 @@ public:
 	private:
 		std::string text;
 		std::function<void()> onActivation;
-		bool isEnable;
+
+	public:
+		static constexpr double fontScale{0.75}; // fontHeight / itemHeight
 
 		// Prevent rendering multiple times
 		// Only updated when the "selected" status change
 		sw::Surface cache;
 
-	public:
-		static constexpr double fontScale{0.75}; // fontHeight / itemHeight
+		bool enable;
 
-		Item(std::string_view text, std::function<void()> onActivation, bool isEnable = true);
+
+		Item(std::string_view text, std::function<void()> onActivation, bool enable = true);
 		Item(const Item &item);
 		Item& operator=(const Item &item);
 
-		void setEnable(bool isEnable);
-		bool getEnable();
 		void update(int width, int height, const sw::ColorPair &color, sw::Font &font);
-		sw::Surface& getCache();
 		void activate(); // An Item can activated by the parent Menu
 	};
 
@@ -146,7 +144,6 @@ private:
 public:
 	UI(sw::Surface &surface);
 	void reInit(sw::Surface &surface);
-	sw::Surface& getSurface();
 	void update();
 	void handleEvent(const SDL_Event &event);
 	void add(Widget &widget);

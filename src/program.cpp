@@ -1,6 +1,6 @@
 #include "program.hpp"
 
-ProgramState::ProgramState(Program &program) : program{program}, ui{program.getSurface()}, next{nullptr}
+ProgramState::ProgramState(Program &program) : program{program}, ui{program.surface}, next{nullptr}
 {
 }
 
@@ -36,7 +36,7 @@ void MenuState::Background::draw(sw::Surface &surface)
 	}
 }
 
-MenuState::MenuState(Program &program) : ProgramState{program}, background{{0.0, 0.0, 1.0, 1.0}}, menu{makeMainMenu({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.getExeDir() / "font")}
+MenuState::MenuState(Program &program) : ProgramState{program}, background{{0.0, 0.0, 1.0, 1.0}}, menu{makeMainMenu({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.exeDir / "font")}
 {
 	ui.add(background);
 	menu.add({"Start Game", [this](){ this->next = std::make_unique<GameState>(this->program); }});
@@ -48,7 +48,7 @@ MenuState::MenuState(Program &program) : ProgramState{program}, background{{0.0,
 
 GameState::GameState(Program &program) : ProgramState{program}
 {
-	sw::Font font{program.getExeDir() / "font" / "Terminus-Bold.ttf", 50};
+	sw::Font font{program.exeDir / "font" / "Terminus-Bold.ttf", 50};
 	line1 = font.renderBlended("ESC: Pause Game", {255, 255, 255, 255});
 }
 
@@ -77,13 +77,13 @@ std::unique_ptr<ProgramState> GameState::handleEvent(const SDL_Event &event)
 
 void GameState::update()
 {
-	program.getSurface().fillRect(nullptr, {0, 0, 0, 255});
+	program.surface.fillRect(nullptr, {0, 0, 0, 255});
 	sw::Rect dist1{200, 50, -1, -1};
-	line1.blit(program.getSurface(), nullptr, &dist1);
+	line1.blit(program.surface, nullptr, &dist1);
 }
 
 PauseState::PauseState(Program &program)
-	: ProgramState{program}, menu{makeMainMenu({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.getExeDir() / "font")}
+	: ProgramState{program}, menu{makeMainMenu({0.2, 0.4, 0.6, 0.4}, 0.1, 0.01, program.exeDir / "font")}
 {
 
 	menu.add({"Back To Game", [this](){ this->next = std::make_unique<GameState>(this->program); }});
@@ -94,9 +94,9 @@ PauseState::PauseState(Program &program)
 }
 
 EditorState::EditorState(Program &program) : ProgramState{program},
-	status{{0.0, 0.9, 1.0, 0.05}, {textNormal, background}, program.getExeDir() / "font" / "DejaVuSansMono.ttf"},
-	message{{0.0, 0.95, 1.0, 0.05}, {textHighlight, background}, program.getExeDir() / "font" / "DejaVuSansMono.ttf"},
-	editor{{0.0, 0.0, 1.0, 0.9}, program.getGame(), status.getText(), message.getText(), program.getExeDir() / "font", [this](){ this->next = std::make_unique<MenuState>(this->program); }}
+	status{{0.0, 0.9, 1.0, 0.05}, {textNormal, background}, program.exeDir / "font" / "DejaVuSansMono.ttf"},
+	message{{0.0, 0.95, 1.0, 0.05}, {textHighlight, background}, program.exeDir / "font" / "DejaVuSansMono.ttf"},
+	editor{{0.0, 0.0, 1.0, 0.9}, program.game, status.text, message.text, [this](){ this->next = std::make_unique<MenuState>(this->program); }}
 {
 }
 
@@ -121,7 +121,7 @@ void ExitState::update()
 }
 
 Program::Program(Log &logger, const fs::path &exeDir, sw::Surface &surface)
-	: logger{logger}, exeDir{exeDir}, surface{surface}, game{logger, exeDir}, state{std::make_unique<MenuState>(*this)}
+	: state{std::make_unique<MenuState>(*this)}, logger{logger}, exeDir{exeDir}, surface{surface}, game{logger, exeDir}
 {
 }
 
@@ -140,25 +140,5 @@ void Program::update()
 bool Program::isExited()
 {
 	return dynamic_cast<ExitState*>(state.get()) != nullptr;
-}
-
-Log& Program::getLog()
-{
-	return logger;
-}
-
-sw::Surface& Program::getSurface()
-{
-	return surface;
-}
-
-const fs::path& Program::getExeDir()
-{
-	return exeDir;
-}
-
-Game& Program::getGame()
-{
-	return game;
 }
 

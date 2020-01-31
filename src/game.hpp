@@ -5,13 +5,10 @@
 
 class Game
 {
-private:
-	Log &logger;
-	Level level;
-
 public:
 	Game(Log &logger, const std::filesystem::path &exeDir);
-	Level& getLevel();
+	Log &logger;
+	Level level;
 };
 
 #endif // ifndef GAME_HPP
