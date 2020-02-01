@@ -26,6 +26,7 @@ public:
 
 	void init(const std::string &title, const Config &config);
 	void cleanup();
+	SDL_Window* getPtr();
 	Surface& getSurface();
 	void update();
 	operator bool();

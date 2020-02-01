@@ -112,14 +112,14 @@ private:
 	std::unique_ptr<ProgramState> state;
 
 public:
-	Program(Log &logger, const fs::path &exeDir, sw::Surface &surface);
+	Program(Log &logger, const fs::path &exeDir, sw::Window &window);
 	void handleEvent(const SDL_Event &event);
 	void update();
 	bool isExited();
 
 	Log &logger;
 	const fs::path &exeDir;
-	sw::Surface &surface;
+	sw::Window &window;
 	Game game;
 };
 

@@ -51,6 +51,11 @@ void Window::cleanup()
 	SDL_DestroyWindow(window);
 }
 
+SDL_Window* Window::getPtr()
+{
+	return window;
+}
+
 Surface& Window::getSurface()
 {
 	if (!window)

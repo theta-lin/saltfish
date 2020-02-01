@@ -1,6 +1,6 @@
 #include "program.hpp"
 
-ProgramState::ProgramState(Program &program) : program{program}, ui{program.surface}, next{nullptr}
+ProgramState::ProgramState(Program &program) : program{program}, ui{program.window.getSurface()}, next{nullptr}
 {
 }
 
@@ -77,9 +77,9 @@ std::unique_ptr<ProgramState> GameState::handleEvent(const SDL_Event &event)
 
 void GameState::update()
 {
-	program.surface.fillRect(nullptr, {0, 0, 0, 255});
+	program.window.getSurface().fillRect(nullptr, {0, 0, 0, 255});
 	sw::Rect dist1{200, 50, -1, -1};
-	line1.blit(program.surface, nullptr, &dist1);
+	line1.blit(program.window.getSurface(), nullptr, &dist1);
 }
 
 PauseState::PauseState(Program &program)
@@ -96,7 +96,7 @@ PauseState::PauseState(Program &program)
 EditorState::EditorState(Program &program) : ProgramState{program},
 	status{{0.0, 0.9, 1.0, 0.05}, {textNormal, background}, program.exeDir / "font" / "DejaVuSansMono.ttf"},
 	message{{0.0, 0.95, 1.0, 0.05}, {textHighlight, background}, program.exeDir / "font" / "DejaVuSansMono.ttf"},
-	editor{{0.0, 0.0, 1.0, 0.9}, program.game, status.text, message.text, [this](){ this->next = std::make_unique<MenuState>(this->program); }}
+	editor{{0.0, 0.0, 1.0, 0.9}, program.window, program.game, program.logger, status.text, message.text, [this](){ this->next = std::make_unique<MenuState>(this->program); }}
 {
 }
 
@@ -120,8 +120,8 @@ void ExitState::update()
 	return;
 }
 
-Program::Program(Log &logger, const fs::path &exeDir, sw::Surface &surface)
-	: state{std::make_unique<MenuState>(*this)}, logger{logger}, exeDir{exeDir}, surface{surface}, game{logger, exeDir}
+Program::Program(Log &logger, const fs::path &exeDir, sw::Window &window)
+	: state{std::make_unique<MenuState>(*this)}, logger{logger}, exeDir{exeDir}, window{window}, game{logger, exeDir}
 {
 }
 

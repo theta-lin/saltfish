@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 			throw std::runtime_error{"FATAL: cannot open config file"};
 
 		sw::Window window{logger, "saltfish", config};
-		Program program{logger, exeDir, window.getSurface()};
+		Program program{logger, exeDir, window};
 
 		SDL_Event event;
 		// main loop
