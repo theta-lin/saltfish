@@ -5,7 +5,7 @@
 #include <SDL_ttf.h>
 #include <filesystem>
 
-namespace sw // = Sdl Wrapper
+namespace sw // Sdl Wrapper
 {
 
 /*

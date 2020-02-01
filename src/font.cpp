@@ -1,6 +1,6 @@
 #include "font.hpp"
 
-namespace sw // = Sdl Wrapper
+namespace sw // Sdl Wrapper
 {
 
 Font::Font() : font{nullptr}
