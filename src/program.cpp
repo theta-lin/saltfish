@@ -96,14 +96,11 @@ PauseState::PauseState(Program &program)
 EditorState::EditorState(Program &program) : ProgramState{program},
 	status{{0.0, 0.9, 1.0, 0.05}, {textNormal, background}, program.exeDir / "font" / "DejaVuSansMono.ttf"},
 	message{{0.0, 0.95, 1.0, 0.05}, {textHighlight, background}, program.exeDir / "font" / "DejaVuSansMono.ttf"},
-	editor{{0.0, 0.0, 1.0, 0.9}, program.window, program.game, program.logger, status.text, message.text, [this](){ this->next = std::make_unique<MenuState>(this->program); }}
+	editor{{0.0, 0.0, 1.0, 0.9}, program.logger, program.window, program.game, status.text, message.text, [this](){ this->next = std::make_unique<MenuState>(this->program); }}
 {
-}
-
-std::unique_ptr<ProgramState> EditorState::handleEvent(const SDL_Event &event)
-{
-	editor.handleEvent(event);
-	return ProgramState::handleEvent(event);
+	ui.add(status);
+	ui.add(message);
+	ui.add(editor);
 }
 
 ExitState::ExitState(Program &program) : ProgramState{program}
@@ -121,7 +118,7 @@ void ExitState::update()
 }
 
 Program::Program(Log &logger, const fs::path &exeDir, sw::Window &window)
-	: state{std::make_unique<MenuState>(*this)}, logger{logger}, exeDir{exeDir}, window{window}, game{logger, exeDir}
+	: logger{logger}, exeDir{exeDir}, window{window}, game{logger, exeDir}, state{std::make_unique<MenuState>(*this)}
 {
 }
 

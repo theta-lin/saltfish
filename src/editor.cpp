@@ -1,4 +1,5 @@
 #include "editor.hpp"
+#include <iostream>
 
 Editor::Tool::Tool(Editor &editor) : editor{editor}
 {
@@ -38,7 +39,7 @@ std::pair<bool, std::unique_ptr<Editor::Tool> > Editor::NullTool::handleEvent(co
 			if (confirmQuit)
 			{
 				confirmQuit = false;
-				editor.status = defaultStatus;
+				editor.status = defaultStatus + defaultStatusPrompt;
 			}
 			break;
 
@@ -111,14 +112,14 @@ void Editor::toolHandleEvent(const SDL_Event &event, const Vec2d &coord)
 	}
 }
 
-Editor::Editor(const DoubleRect &dimension, sw::Window &window, Game &game, Log &logger, std::string &status, std::string &message, std::function<void()> onExit)
-	: Widget{dimension}, view{{0.0, 0.0}, 0.005},
-	  window{window}, game{game}, tool{std::make_unique<NullTool>(*this)},
-	  hLocked{false}, yAlign{0}, vLocked{false}, xAlign{0},
-	  leftMouseButtonDown{false}, dragged{false}, xOrigin{0}, yOrigin{0},
-	  logger{logger}, status{status}, message{message}, onExit{onExit}
+Editor::Editor(const DoubleRect &dimension, Log &logger, sw::Window &window, Game &game, std::string &status, std::string &message, std::function<void()> onExit)
+	: Widget{dimension}, view{{0.0, 0.0}, initScale},
+	  logger{logger}, window{window}, game{game}, status{status}, message{message},
+	  tool{std::make_unique<NullTool>(*this)},
+	  hLocked{false}, yAlign{-1}, vLocked{false}, xAlign{-1},
+	  leftMouseButtonDown{false}, dragged{false}, xOrigin{-1}, yOrigin{-1},
+	  onExit{onExit}
 {
-
 }
 
 void Editor::handleEvent(const SDL_Event &event)
@@ -174,26 +175,24 @@ void Editor::handleEvent(const SDL_Event &event)
 
 	case SDL_MOUSEMOTION:
 	{
-		SDL_Event modified{event};
-		if (hLocked)
+		// Handling the FIRST mouse motion IMMEDIATELY after editor start
+		if (xAlign == -1) xAlign = event.motion.x;
+		if (yAlign == -1) yAlign = event.motion.y;
+
+		// Note: Warping mouse generates another mouse motion event (which must be valid)
+		if (hLocked && event.motion.y != yAlign)
 		{
 			SDL_WarpMouseInWindow(window.getPtr(), event.motion.x, yAlign);
-			modified.motion.y = yAlign;
+			break;
 		}
-		else
-		{
-			yAlign = event.motion.y;
-		}
-
-		if (vLocked)
+		if (vLocked && event.motion.x != xAlign)
 		{
 			SDL_WarpMouseInWindow(window.getPtr(), xAlign, event.motion.y);
-			modified.motion.x = xAlign;
+			break;
 		}
-		else
-		{
-			xAlign = event.motion.x;
-		}
+
+		xAlign = event.motion.x;
+		yAlign = event.motion.y;
 
 		if (leftMouseButtonDown)
 		{
@@ -201,37 +200,49 @@ void Editor::handleEvent(const SDL_Event &event)
 
 			// Here we are dragging the view OPPOSITE of mouse's motion,
 			// because we actually want to drag the CANVAS not the VIEW
-			view.origin[0] += (xOrigin - modified.motion.x) * view.scale;
-			view.origin[1] += (yOrigin - modified.motion.y) * view.scale;
+			view.origin[0] += (xOrigin - event.motion.x) * view.scale;
+			view.origin[1] += (yOrigin - event.motion.y) * view.scale;
 			message = "Dragging";
 		}
-		else
-		{
-			Vec2d coord{static_cast<double>(modified.motion.x), static_cast<double>(modified.motion.y)};
-			coord *= view.scale;
-			coord += view.origin;
-			toolHandleEvent(modified, coord);
-		}
 
-		xOrigin = modified.motion.x;
-		yOrigin = modified.motion.y;
+		mouseReal = {static_cast<double>(event.motion.x), static_cast<double>(event.motion.y)};
+		mouseReal *= view.scale;
+		mouseReal += view.origin;
+		toolHandleEvent(event, mouseReal);
+
+		xOrigin = event.motion.x;
+		yOrigin = event.motion.y;
 		break;
 	}
 
 	case SDL_MOUSEBUTTONDOWN:
+	{
 		if (event.button.button == SDL_BUTTON_LEFT)
+		{
+			// Actually, only useful for handling the FIRST left mouse button down IMMEDIATELY after editor start
+			xOrigin = event.button.x;
+			yOrigin = event.button.y;
+
 			leftMouseButtonDown = true;
+		}
+
+		mouseReal = {static_cast<double>(event.button.x), static_cast<double>(event.button.y)};
+		mouseReal *= view.scale;
+		mouseReal += view.origin;
+		toolHandleEvent(event, mouseReal);
+
 		break;
+	}
 
 	case SDL_MOUSEBUTTONUP:
 		if (event.button.button == SDL_BUTTON_LEFT)
 		{
 			if (!dragged)
 			{
-				Vec2d coord{static_cast<double>(event.button.x), static_cast<double>(event.button.y)};
-				coord *= view.scale;
-				coord += view.origin;
-				toolHandleEvent(event, coord);
+				mouseReal = {static_cast<double>(event.button.x), static_cast<double>(event.button.y)};
+				mouseReal *= view.scale;
+				mouseReal += view.origin;
+				toolHandleEvent(event, mouseReal);
 			}
 			leftMouseButtonDown = false;
 			dragged = false;
@@ -240,12 +251,21 @@ void Editor::handleEvent(const SDL_Event &event)
 
 	case SDL_MOUSEWHEEL:
 	{
-		double zoom{zoomCoeff * event.wheel.y};
+		// Positive wheel.y is scrolling mouse wheel away from user,
+		// so making it negative to have it zoom IN
+		double zoom{-zoomCoeff * event.wheel.y};
 		if (event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
 			zoom = -zoom;
-		view.scale = std::clamp(view.scale + zoom, zoomMin, zoomMax);
+		zoom = std::clamp(view.scale + zoom, zoomMin, zoomMax) - view.scale;
+		view.origin += (view.origin - mouseReal) / view.scale * zoom;
+		view.scale += zoom;
+		message = "Zoom 1:" + std::to_string(view.scale);
+
 		break;
 	}
+
+	default:
+		break;
 	}
 }
 
@@ -402,3 +422,9 @@ void Editor::draw(sw::Surface &surface)
  *}
  *
  */
+
+double Editor::getViewHeight()
+{
+	return real.h / view.scale;
+}
+

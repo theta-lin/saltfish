@@ -95,7 +95,6 @@ private:
 
 public:
 	EditorState(Program &program);
-	std::unique_ptr<ProgramState> handleEvent(const SDL_Event &event) override;
 };
 
 class ExitState : public ProgramState
@@ -108,6 +107,12 @@ public:
 
 class Program
 {
+public:
+	Log &logger;
+	const fs::path &exeDir;
+	sw::Window &window;
+	Game game;
+
 private:
 	std::unique_ptr<ProgramState> state;
 
@@ -116,11 +121,6 @@ public:
 	void handleEvent(const SDL_Event &event);
 	void update();
 	bool isExited();
-
-	Log &logger;
-	const fs::path &exeDir;
-	sw::Window &window;
-	Game game;
 };
 
 #endif // ifndef PROGRAM_HPP
