@@ -121,7 +121,7 @@ template<std::size_t size, typename T>
 std::ostream& operator<<(std::ostream &out, const Vec<size, T> &v)
 {
 	out << '(';
-	for (int i{0}; i < size - 1; ++i)
+	for (std::size_t i{0}; i < size - 1; ++i)
 		out << v[i] << ',';
 	out << v[size - 1];
 	out << ')';
