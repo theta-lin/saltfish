@@ -122,7 +122,7 @@ writeFail:
 	return false;
 }
 
-void Level::free()
+void Level::clear()
 {
 	vertices.clear();
 	lines.clear();

@@ -46,7 +46,7 @@ public:
 	Level(Log &logger, const std::filesystem::path &exeDir);
 	bool load(const std::string &levelName);
 	bool save(const std::string &levelName);
-	void free();
+	void clear();
 
 	const std::vector<Vertex>& getVertices();
 	const std::list<Line>& getLines();
