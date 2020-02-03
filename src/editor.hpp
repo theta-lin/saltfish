@@ -136,7 +136,7 @@ private:
 		virtual ~Tool();
 
 		// Receives SDL_Event, in which if containing coordinates, needs to be translated into real coordinates.
-		// Note: Coordinates in "event" is screen coordinates, "coord" is real coordinates
+		// It reads the real coordinates through Editor::getMouseReal(), and rarely access the screen coordinates in SDL_Event
 		//
 		// Return:
 		// bool done: true if event has been FINALLY handled, and SHOULDN'T be handled again
@@ -150,7 +150,7 @@ private:
 		// A LEFT MOUSE BUTTON UP IS ONLY UNHANDLED WHEN IT HAS THE SAME COORDINATES AS THE PREVIOUS LMB DOWN EVENT
 		// (otherwise considered a dragging operation).
 		//  Note: Derivatives should handle LEFT MOUSE BUTTON DOWN only for UPDATING, and LEFT MOUSE BUTTON UP for the ACTUAL CLICK.
-		virtual std::tuple<bool, bool, std::unique_ptr<Tool> > handleEvent(const SDL_Event &event, [[maybe_unused]] const Vec2d &coord);
+		virtual std::tuple<bool, bool, std::unique_ptr<Tool> > handleEvent(const SDL_Event &event);
 
 		// Activate(acting as redo if called from outside) and undo operation, supposed to be called from History.
 		// activate() can also be called internally by handleEvent()
@@ -166,7 +166,6 @@ private:
 	{
 	private:
 		static constexpr std::string_view defaultStatus{"NULL: "};
-		static constexpr std::string_view defaultStatusPrompt{"Press \'q\' to quit"};
 		static constexpr std::string_view quitPromptStatus{"Are you sure to quit? [y/N]"};
 		static constexpr std::string_view newPromptStatus{"Are you sure to begin a new level? [y/N]"};
 		static constexpr std::string_view newMessage{"New level"};
@@ -175,11 +174,12 @@ private:
 		bool confirmQuit;
 		bool confirmNew;
 
+		void showDefaultStatus();
 		void newLevel();
 
 	public:
 		NullTool(Editor &editor);
-		std::tuple<bool, bool, std::unique_ptr<Tool> > handleEvent(const SDL_Event &event, const Vec2d &coord) override;
+		std::tuple<bool, bool, std::unique_ptr<Tool> > handleEvent(const SDL_Event &event) override;
 	};
 
 	class OpenTool final: public Tool
@@ -197,7 +197,7 @@ private:
 
 	public:
 		OpenTool(Editor &editor);
-		std::tuple<bool, bool, std::unique_ptr<Tool> > handleEvent(const SDL_Event &event, [[maybe_unused]] const Vec2d &coord) override;
+		std::tuple<bool, bool, std::unique_ptr<Tool> > handleEvent(const SDL_Event &event) override;
 	};
 
 	/*
@@ -269,7 +269,7 @@ private:
 	const sw::Color backgroundColor{0  ,   0,   0, 255};
 
 	// Wrapper to deal with tool pointer and history after tool handled event
-	void toolHandleEvent(const SDL_Event &event, const Vec2d &coord);
+	void toolHandleEvent(const SDL_Event &event);
 
 public:
 	// true for change since last new/load/save
@@ -279,6 +279,8 @@ public:
 	Editor(const DoubleRect &dimension, Log &logger, sw::Window &window, Game &game, std::string &status, std::string &message, std::function<void()> onExit);
 	void handleEvent(const SDL_Event &event) final;
 	void draw(sw::Surface &surface) final;
+
+	const Vec2d& getMouseReal();
 
 	bool undo();
 	bool redo();

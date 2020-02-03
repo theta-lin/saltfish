@@ -67,7 +67,7 @@ void Editor::Tool::undo()
 {
 }
 
-std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::Tool::handleEvent(const SDL_Event &event, [[maybe_unused]] const Vec2d &coord)
+std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::Tool::handleEvent(const SDL_Event &event)
 {
 	switch (event.type)
 	{
@@ -151,28 +151,33 @@ std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::Tool::handleEvent
 	return {false, false, nullptr};
 }
 
+void Editor::NullTool::showDefaultStatus()
+{
+	const Vec2d &coord{editor.getMouseReal()};
+	editor.status = defaultStatus;
+	editor.status += '(' + std::to_string(coord[0]) + ',' + std::to_string(coord[1]) + ')';
+}
+
 void Editor::NullTool::newLevel()
 {
 	editor.game.level.clear();
 	editor.changed = false;
 	confirmNew = false;
-	editor.status = defaultStatus;
-	editor.status += defaultStatusPrompt;
+	showDefaultStatus();
 	editor.message = newMessage;
 }
 
 Editor::NullTool::NullTool(Editor &editor) : Tool{editor}, confirmQuit{false}, confirmNew{false}
 {
-	editor.status = defaultStatus;
-	editor.status += defaultStatusPrompt;
+	showDefaultStatus();
 }
 
-std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::NullTool::handleEvent(const SDL_Event &event, const Vec2d &coord)
+std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::NullTool::handleEvent(const SDL_Event &event)
 {
 	bool done;
 	bool appendTo;
 	std::unique_ptr<Tool> next;
-	std::tie(done, appendTo, next) = Tool::handleEvent(event, coord);
+	std::tie(done, appendTo, next) = Tool::handleEvent(event);
 	if (done)
 		return {done, appendTo, std::move(next)};
 
@@ -200,14 +205,12 @@ std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::NullTool::handleE
 			if (confirmQuit)
 			{
 				confirmQuit = false;
-				editor.status = defaultStatus;
-				editor.status += defaultStatusPrompt;
+				showDefaultStatus();
 			}
 			else if (confirmNew)
 			{
 				confirmNew = false;
-				editor.status = defaultStatus;
-				editor.status += defaultStatusPrompt;
+				showDefaultStatus();
 			}
 			else
 			{
@@ -235,10 +238,7 @@ std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::NullTool::handleE
 		[[fallthrough]];
 	case SDL_MOUSEMOTION:
 		if (!confirmQuit && !confirmNew)
-		{
-			editor.status = defaultStatus;
-			editor.status += '(' + std::to_string(coord[0]) + ',' + std::to_string(coord[1]) + ')';
-		}
+			showDefaultStatus();
 		break;
 
 	default:
@@ -260,7 +260,7 @@ Editor::OpenTool::OpenTool(Editor &editor) : Tool{editor}, confirmOpen{false}
 	editor.status += cursorChar;
 }
 
-std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::OpenTool::handleEvent(const SDL_Event &event, [[maybe_unused]] const Vec2d &coord)
+std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::OpenTool::handleEvent(const SDL_Event &event)
 {
 	static bool firstTime{true};
 
@@ -287,7 +287,7 @@ std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::OpenTool::handleE
 			break;
 		}
 
-		return Tool::handleEvent(event, coord);
+		return Tool::handleEvent(event);
 	}
 	else
 	{
@@ -310,7 +310,7 @@ std::tuple<bool, bool, std::unique_ptr<Editor::Tool> > Editor::OpenTool::handleE
 			break;
 
 		case Field::previous:
-			return Tool::handleEvent(event, coord);
+			return Tool::handleEvent(event);
 
 		case Field::next:
 			if (editor.changed)
@@ -363,12 +363,12 @@ void Editor::History::clear()
 	operations.clear();
 }
 
-void Editor::toolHandleEvent(const SDL_Event &event, const Vec2d &coord)
+void Editor::toolHandleEvent(const SDL_Event &event)
 {
 	bool done;
 	bool appendTo;
 	std::unique_ptr<Tool> next;
-	std::tie(done, appendTo, next) = tool->handleEvent(event, coord);
+	std::tie(done, appendTo, next) = tool->handleEvent(event);
 
 	if (next)
 	{
@@ -418,7 +418,7 @@ void Editor::handleEvent(const SDL_Event &event)
 		mouseReal = {static_cast<double>(event.motion.x), static_cast<double>(event.motion.y)};
 		mouseReal *= view.scale;
 		mouseReal += view.origin;
-		toolHandleEvent(event, mouseReal);
+		toolHandleEvent(event);
 
 		xOrigin = event.motion.x;
 		yOrigin = event.motion.y;
@@ -436,13 +436,13 @@ void Editor::handleEvent(const SDL_Event &event)
 		mouseReal = {static_cast<double>(event.button.x), static_cast<double>(event.button.y)};
 		mouseReal *= view.scale;
 		mouseReal += view.origin;
-		toolHandleEvent(event, mouseReal);
+		toolHandleEvent(event);
 
 		break;
 	}
 
 	default:
-		toolHandleEvent(event, {});
+		toolHandleEvent(event);
 		break;
 	}
 }
@@ -461,6 +461,11 @@ void Editor::draw(sw::Surface &surface)
 		lineDraw.draw(foregroundColor, tmp);
 	}
 	tmp.blit(surface, nullptr, &real);
+}
+
+const Vec2d& Editor::getMouseReal()
+{
+	return mouseReal;
 }
 
 bool Editor::undo()
